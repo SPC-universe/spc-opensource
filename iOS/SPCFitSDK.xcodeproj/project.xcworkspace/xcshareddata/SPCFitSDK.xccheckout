@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D1EA004B-C4F0-4B77-B6BB-E627F0157ECC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SPCFitSDK</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>3459017469B2966E72638E00B930D3763C605AC9</key>
+		<string>github.com:SPC-universe/spc-fitness-opensource.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>SPCFitSDK.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>3459017469B2966E72638E00B930D3763C605AC9</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:SPC-universe/spc-fitness-opensource.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>3459017469B2966E72638E00B930D3763C605AC9</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>3459017469B2966E72638E00B930D3763C605AC9</string>
+			<key>IDESourceControlWCCName</key>
+			<string>sdk</string>
+		</dict>
+	</array>
+</dict>
+</plist>

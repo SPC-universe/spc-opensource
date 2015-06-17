@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SPCFitSDK</string>
+    <string name="action_settings">Settings</string>
+    <string name="ble_not_supported">Bluetooth de baja energia no soportado.</string>
+    <string name="b_not_supported">Bluetooth no soportado.</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="title_activity_show_device">ShowDeviceActivity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
+

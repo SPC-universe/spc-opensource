@@ -1,0 +1,182 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.erlaitz.erlaitz.androidble.fragments.DetailInfoFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:weightSum="1"
+            android:padding="10dp" >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="5dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="How many days ago?"
+                    android:id="@+id/textView15"
+                    android:textSize="15dp" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:ems="10"
+                    android:id="@+id/dayET"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Get Detail Info"
+                android:id="@+id/getDetailInfoB"
+                android:layout_margin="5dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No data"
+                android:id="@+id/noDataTV"
+                android:textColor="#ff0000"
+                android:gravity="center_horizontal"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" >
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Day activity"
+                    android:id="@+id/textView11"
+                    android:textSize="18dp"
+                    android:textColor="#222222"
+                    android:gravity="center" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/activityTL">
+
+                        <TableRow android:orientation="horizontal">
+                            <TextView
+                                android:text="Date"
+                                android:layout_column="1"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                            <TextView
+                                android:text="Steps"
+                                android:layout_column="2"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                            <TextView
+                                android:text="Aerobic Steps"
+                                android:layout_column="3"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                            <TextView
+                                android:text="Calories"
+                                android:layout_column="4"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                            <TextView
+                                android:text="Kilometers"
+                                android:layout_column="5"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+                        </TableRow>
+
+                    </TableLayout>
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sleep Quality"
+                    android:id="@+id/textView28"
+                    android:layout_gravity="center"
+                    android:textSize="18dp"
+                    android:textColor="#222222" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/horizontalScrollView">
+
+                    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/sleepQualityTL" >
+
+                        <TableRow
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" >
+
+                            <TextView
+                                android:text="Date"
+                                android:layout_column="1"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                            <TextView
+                                android:text="Sleep Quality"
+                                android:layout_column="2"
+                                android:layout_width="wrap_content"
+                                android:padding="3px"
+                                android:gravity="right" />
+
+                        </TableRow>
+                    </TableLayout>
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

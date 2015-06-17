@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+package="com.spc.spcfitsdk" >
+
+<uses-feature
+    android:name="android.hardware.bluetooth_le"
+    android:required="true" />
+
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+<application
+    android:allowBackup="true"
+    android:icon="@drawable/ic_launcher"
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme" >
+
+    <activity
+        android:name=".activities.MainActivity"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+    <activity
+        android:name=".activities.ShowDeviceActivity"
+        android:label="@string/title_activity_show_device"
+        android:screenOrientation="portrait" >
+    </activity>
+
+    <service
+        android:name=".activityTracker.ActivityTracker"
+        android:enabled="true"
+        android:exported="true" >
+    </service>
+</application>
+
+</manifest>

@@ -1,0 +1,493 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C13C3F0C1AA4A74E00918003 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F0B1AA4A74E00918003 /* main.m */; };
+		C13C3F0F1AA4A74E00918003 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F0E1AA4A74E00918003 /* AppDelegate.m */; };
+		C13C3F151AA4A74E00918003 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C13C3F131AA4A74E00918003 /* Main.storyboard */; };
+		C13C3F171AA4A74E00918003 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C13C3F161AA4A74E00918003 /* Images.xcassets */; };
+		C13C3F1A1AA4A74E00918003 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C13C3F181AA4A74E00918003 /* LaunchScreen.xib */; };
+		C13C3F261AA4A74E00918003 /* SPCFitSDKTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F251AA4A74E00918003 /* SPCFitSDKTests.m */; };
+		C13C3F321AA4A93C00918003 /* DispositivosViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F311AA4A93C00918003 /* DispositivosViewController.m */; };
+		C13C3F3B1AA4C9BB00918003 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C13C3F3A1AA4C9BB00918003 /* CoreBluetooth.framework */; };
+		C13C3F411AA4D00500918003 /* ActivityTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F3E1AA4D00500918003 /* ActivityTracker.m */; };
+		C13C3F421AA4D00500918003 /* ActivityTrackerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F401AA4D00500918003 /* ActivityTrackerManager.m */; };
+		C13C3F451AA4D99300918003 /* FechaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C13C3F441AA4D99300918003 /* FechaViewController.m */; };
+		C1441C121AA5751F00389D70 /* InfoPersonalViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C1441C111AA5751F00389D70 /* InfoPersonalViewController.m */; };
+		C1441C151AA5754700389D70 /* ActividadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C1441C141AA5754700389D70 /* ActividadViewController.m */; };
+		C1441C1B1AA588AF00389D70 /* ActividadDetalleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C1441C1A1AA588AF00389D70 /* ActividadDetalleViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C13C3F201AA4A74E00918003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C13C3EFE1AA4A74E00918003 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C13C3F051AA4A74E00918003;
+			remoteInfo = SPCFitSDK;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C13C3F061AA4A74E00918003 /* SPCFitSDK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SPCFitSDK.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C13C3F0A1AA4A74E00918003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C13C3F0B1AA4A74E00918003 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C13C3F0D1AA4A74E00918003 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C13C3F0E1AA4A74E00918003 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C13C3F141AA4A74E00918003 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C13C3F161AA4A74E00918003 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		C13C3F191AA4A74E00918003 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		C13C3F1F1AA4A74E00918003 /* SPCFitSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SPCFitSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C13C3F241AA4A74E00918003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C13C3F251AA4A74E00918003 /* SPCFitSDKTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SPCFitSDKTests.m; sourceTree = "<group>"; };
+		C13C3F301AA4A93C00918003 /* DispositivosViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DispositivosViewController.h; path = Controller/DispositivosViewController.h; sourceTree = "<group>"; };
+		C13C3F311AA4A93C00918003 /* DispositivosViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DispositivosViewController.m; path = Controller/DispositivosViewController.m; sourceTree = "<group>"; };
+		C13C3F3A1AA4C9BB00918003 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		C13C3F3D1AA4D00500918003 /* ActivityTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActivityTracker.h; path = ActivityTracker/ActivityTracker.h; sourceTree = "<group>"; };
+		C13C3F3E1AA4D00500918003 /* ActivityTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActivityTracker.m; path = ActivityTracker/ActivityTracker.m; sourceTree = "<group>"; };
+		C13C3F3F1AA4D00500918003 /* ActivityTrackerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActivityTrackerManager.h; path = ActivityTracker/ActivityTrackerManager.h; sourceTree = "<group>"; };
+		C13C3F401AA4D00500918003 /* ActivityTrackerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActivityTrackerManager.m; path = ActivityTracker/ActivityTrackerManager.m; sourceTree = "<group>"; };
+		C13C3F431AA4D99300918003 /* FechaViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FechaViewController.h; path = Controller/FechaViewController.h; sourceTree = "<group>"; };
+		C13C3F441AA4D99300918003 /* FechaViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FechaViewController.m; path = Controller/FechaViewController.m; sourceTree = "<group>"; };
+		C1441C101AA5751F00389D70 /* InfoPersonalViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfoPersonalViewController.h; path = Controller/InfoPersonalViewController.h; sourceTree = "<group>"; };
+		C1441C111AA5751F00389D70 /* InfoPersonalViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InfoPersonalViewController.m; path = Controller/InfoPersonalViewController.m; sourceTree = "<group>"; };
+		C1441C131AA5754700389D70 /* ActividadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActividadViewController.h; path = Controller/ActividadViewController.h; sourceTree = "<group>"; };
+		C1441C141AA5754700389D70 /* ActividadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActividadViewController.m; path = Controller/ActividadViewController.m; sourceTree = "<group>"; };
+		C1441C191AA588AF00389D70 /* ActividadDetalleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActividadDetalleViewController.h; path = Controller/ActividadDetalleViewController.h; sourceTree = "<group>"; };
+		C1441C1A1AA588AF00389D70 /* ActividadDetalleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActividadDetalleViewController.m; path = Controller/ActividadDetalleViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C13C3F031AA4A74E00918003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C13C3F3B1AA4C9BB00918003 /* CoreBluetooth.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C13C3F1C1AA4A74E00918003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C13C3EFD1AA4A74E00918003 = {
+			isa = PBXGroup;
+			children = (
+				C13C3F3C1AA4CB0100918003 /* Frameworks */,
+				C13C3F071AA4A74E00918003 /* Products */,
+				C13C3F081AA4A74E00918003 /* SPCFitSDK */,
+				C13C3F221AA4A74E00918003 /* SPCFitSDKTests */,
+			);
+			sourceTree = "<group>";
+		};
+		C13C3F071AA4A74E00918003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F061AA4A74E00918003 /* SPCFitSDK.app */,
+				C13C3F1F1AA4A74E00918003 /* SPCFitSDKTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C13C3F081AA4A74E00918003 /* SPCFitSDK */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F331AA4C91F00918003 /* ActivityTracker */,
+				C13C3F2F1AA4A90600918003 /* Controller */,
+				C13C3F131AA4A74E00918003 /* Main.storyboard */,
+				C13C3F161AA4A74E00918003 /* Images.xcassets */,
+				C13C3F181AA4A74E00918003 /* LaunchScreen.xib */,
+				C13C3F091AA4A74E00918003 /* Supporting Files */,
+			);
+			path = SPCFitSDK;
+			sourceTree = "<group>";
+		};
+		C13C3F091AA4A74E00918003 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F0D1AA4A74E00918003 /* AppDelegate.h */,
+				C13C3F0E1AA4A74E00918003 /* AppDelegate.m */,
+				C13C3F0A1AA4A74E00918003 /* Info.plist */,
+				C13C3F0B1AA4A74E00918003 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C13C3F221AA4A74E00918003 /* SPCFitSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F251AA4A74E00918003 /* SPCFitSDKTests.m */,
+				C13C3F231AA4A74E00918003 /* Supporting Files */,
+			);
+			path = SPCFitSDKTests;
+			sourceTree = "<group>";
+		};
+		C13C3F231AA4A74E00918003 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F241AA4A74E00918003 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C13C3F2F1AA4A90600918003 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				C1441C191AA588AF00389D70 /* ActividadDetalleViewController.h */,
+				C1441C1A1AA588AF00389D70 /* ActividadDetalleViewController.m */,
+				C1441C131AA5754700389D70 /* ActividadViewController.h */,
+				C1441C141AA5754700389D70 /* ActividadViewController.m */,
+				C13C3F301AA4A93C00918003 /* DispositivosViewController.h */,
+				C13C3F311AA4A93C00918003 /* DispositivosViewController.m */,
+				C13C3F431AA4D99300918003 /* FechaViewController.h */,
+				C13C3F441AA4D99300918003 /* FechaViewController.m */,
+				C1441C101AA5751F00389D70 /* InfoPersonalViewController.h */,
+				C1441C111AA5751F00389D70 /* InfoPersonalViewController.m */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		C13C3F331AA4C91F00918003 /* ActivityTracker */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F3D1AA4D00500918003 /* ActivityTracker.h */,
+				C13C3F3E1AA4D00500918003 /* ActivityTracker.m */,
+				C13C3F3F1AA4D00500918003 /* ActivityTrackerManager.h */,
+				C13C3F401AA4D00500918003 /* ActivityTrackerManager.m */,
+			);
+			name = ActivityTracker;
+			sourceTree = "<group>";
+		};
+		C13C3F3C1AA4CB0100918003 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C13C3F3A1AA4C9BB00918003 /* CoreBluetooth.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C13C3F051AA4A74E00918003 /* SPCFitSDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C13C3F291AA4A74E00918003 /* Build configuration list for PBXNativeTarget "SPCFitSDK" */;
+			buildPhases = (
+				C13C3F021AA4A74E00918003 /* Sources */,
+				C13C3F031AA4A74E00918003 /* Frameworks */,
+				C13C3F041AA4A74E00918003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SPCFitSDK;
+			productName = SPCFitSDK;
+			productReference = C13C3F061AA4A74E00918003 /* SPCFitSDK.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C13C3F1E1AA4A74E00918003 /* SPCFitSDKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C13C3F2C1AA4A74E00918003 /* Build configuration list for PBXNativeTarget "SPCFitSDKTests" */;
+			buildPhases = (
+				C13C3F1B1AA4A74E00918003 /* Sources */,
+				C13C3F1C1AA4A74E00918003 /* Frameworks */,
+				C13C3F1D1AA4A74E00918003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C13C3F211AA4A74E00918003 /* PBXTargetDependency */,
+			);
+			name = SPCFitSDKTests;
+			productName = SPCFitSDKTests;
+			productReference = C13C3F1F1AA4A74E00918003 /* SPCFitSDKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C13C3EFE1AA4A74E00918003 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = SPC;
+				TargetAttributes = {
+					C13C3F051AA4A74E00918003 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					C13C3F1E1AA4A74E00918003 = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = C13C3F051AA4A74E00918003;
+					};
+				};
+			};
+			buildConfigurationList = C13C3F011AA4A74E00918003 /* Build configuration list for PBXProject "SPCFitSDK" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C13C3EFD1AA4A74E00918003;
+			productRefGroup = C13C3F071AA4A74E00918003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C13C3F051AA4A74E00918003 /* SPCFitSDK */,
+				C13C3F1E1AA4A74E00918003 /* SPCFitSDKTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C13C3F041AA4A74E00918003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C13C3F151AA4A74E00918003 /* Main.storyboard in Resources */,
+				C13C3F1A1AA4A74E00918003 /* LaunchScreen.xib in Resources */,
+				C13C3F171AA4A74E00918003 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C13C3F1D1AA4A74E00918003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C13C3F021AA4A74E00918003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C13C3F451AA4D99300918003 /* FechaViewController.m in Sources */,
+				C13C3F0F1AA4A74E00918003 /* AppDelegate.m in Sources */,
+				C13C3F421AA4D00500918003 /* ActivityTrackerManager.m in Sources */,
+				C1441C1B1AA588AF00389D70 /* ActividadDetalleViewController.m in Sources */,
+				C13C3F411AA4D00500918003 /* ActivityTracker.m in Sources */,
+				C1441C151AA5754700389D70 /* ActividadViewController.m in Sources */,
+				C13C3F321AA4A93C00918003 /* DispositivosViewController.m in Sources */,
+				C1441C121AA5751F00389D70 /* InfoPersonalViewController.m in Sources */,
+				C13C3F0C1AA4A74E00918003 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C13C3F1B1AA4A74E00918003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C13C3F261AA4A74E00918003 /* SPCFitSDKTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C13C3F211AA4A74E00918003 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C13C3F051AA4A74E00918003 /* SPCFitSDK */;
+			targetProxy = C13C3F201AA4A74E00918003 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C13C3F131AA4A74E00918003 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C13C3F141AA4A74E00918003 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C13C3F181AA4A74E00918003 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C13C3F191AA4A74E00918003 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C13C3F271AA4A74E00918003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C13C3F281AA4A74E00918003 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C13C3F2A1AA4A74E00918003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SPCFitSDK/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C13C3F2B1AA4A74E00918003 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SPCFitSDK/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		C13C3F2D1AA4A74E00918003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SPCFitSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SPCFitSDK.app/SPCFitSDK";
+			};
+			name = Debug;
+		};
+		C13C3F2E1AA4A74E00918003 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SPCFitSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SPCFitSDK.app/SPCFitSDK";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C13C3F011AA4A74E00918003 /* Build configuration list for PBXProject "SPCFitSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C13C3F271AA4A74E00918003 /* Debug */,
+				C13C3F281AA4A74E00918003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C13C3F291AA4A74E00918003 /* Build configuration list for PBXNativeTarget "SPCFitSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C13C3F2A1AA4A74E00918003 /* Debug */,
+				C13C3F2B1AA4A74E00918003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C13C3F2C1AA4A74E00918003 /* Build configuration list for PBXNativeTarget "SPCFitSDKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C13C3F2D1AA4A74E00918003 /* Debug */,
+				C13C3F2E1AA4A74E00918003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C13C3EFE1AA4A74E00918003 /* Project object */;
+}
