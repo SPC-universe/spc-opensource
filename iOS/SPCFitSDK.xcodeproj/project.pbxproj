@@ -60,6 +60,7 @@
 		C1441C141AA5754700389D70 /* ActividadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActividadViewController.m; path = Controller/ActividadViewController.m; sourceTree = "<group>"; };
 		C1441C191AA588AF00389D70 /* ActividadDetalleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActividadDetalleViewController.h; path = Controller/ActividadDetalleViewController.h; sourceTree = "<group>"; };
 		C1441C1A1AA588AF00389D70 /* ActividadDetalleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActividadDetalleViewController.m; path = Controller/ActividadDetalleViewController.m; sourceTree = "<group>"; };
+		C1F5D5F81B33F31D00AEC943 /* ActivityTrackerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ActivityTrackerDelegate.h; path = ActivityTracker/ActivityTrackerDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +164,7 @@
 			children = (
 				C13C3F3D1AA4D00500918003 /* ActivityTracker.h */,
 				C13C3F3E1AA4D00500918003 /* ActivityTracker.m */,
+				C1F5D5F81B33F31D00AEC943 /* ActivityTrackerDelegate.h */,
 				C13C3F3F1AA4D00500918003 /* ActivityTrackerManager.h */,
 				C13C3F401AA4D00500918003 /* ActivityTrackerManager.m */,
 			);

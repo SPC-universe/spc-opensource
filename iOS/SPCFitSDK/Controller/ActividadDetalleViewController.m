@@ -17,7 +17,8 @@
     [super viewDidLoad];
 
     self.activityTrackerManager = [ActivityTrackerManager sharedInstance];
-    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activePeripheral delegate:self];
+    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activityTracker.peripheral delegate:self];
+    [self.activityTracker discoverServices];
 
     self.activityData = [[NSMutableArray alloc] init];
     self.sleepData = [[NSMutableArray alloc] init];
@@ -25,9 +26,9 @@
 
 #pragma mark ActivityTrackerDelegate
 
-- (void)activityTrackerReady
+- (void)activityTrackerReady:(ActivityTracker *)activityTracker
 {
-    NSLog(@"activityTrackerReady");
+    NSLog(@"activityTrackerReady: %@", activityTracker);
 
     [self.activityTracker getDetailActivityData:0];
 }
@@ -36,27 +37,26 @@
                                                         date:(NSDate *)date
                                                        steps:(int)steps
                                                 aerobicSteps:(int)aerobicSteps
-                                                         cal:(int)cal
-                                                          km:(int)km
+                                                    calories:(int)calories
+                                                    distance:(int)distance
 {
     [self.activityData addObject:@{
         @"date": date,
         @"steps": @(steps),
-        @"cal": @(cal / 100.0),
-        @"km": @(km / 100.0)
+        @"cal": @(calories / 100.0),
+        @"km": @(distance / 100.0)
     }];
 
     [self.tableView reloadData];
 }
 
--(void)activityTrackerGetDetailActivityDataSleepResponseIndex:(int)index
-                                                         date:(NSDate *)date
-                                                 sleepQuality:(int)sleepQuality
+- (void)activityTrackerGetDetailActivityDataSleepResponseIndex:(int)index
+                                                sleepQualities:(NSArray *)sleepQualities
 {
-    [self.sleepData addObject:@{
-        @"date": date,
-        @"quality": @(sleepQuality)
-    }];
+    for (NSDictionary *sleepData in sleepQualities) {
+        [self.sleepData addObject:@{ @"date": sleepData[@"data"],
+                                     @"quality": sleepData[@"quality"] }];
+    }
 
     [self.tableView reloadData];
 }

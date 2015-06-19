@@ -6,12 +6,18 @@
 
 @property (strong, nonatomic) CBCentralManager *centralManager;
 @property (strong, nonatomic) NSMutableDictionary *peripherals;
-@property (strong, nonatomic) CBPeripheral *activePeripheral;
+
+@property (strong, nonatomic) NSMutableDictionary *activityTrackers;
+@property (strong, nonatomic) ActivityTracker *activityTracker;
 
 + (ActivityTrackerManager *)sharedInstance;
+- (void)reinit;
 
 - (void)findPeripherals:(NSTimeInterval)timeInterval;
 - (CBPeripheral *)peripheralAtIndex:(NSUInteger)index;
-- (void)connectTo:(CBPeripheral *)peripheral;
+- (NSString *)deviceIdAtIndex:(NSUInteger)index;
+
+- (void)connectTo:(NSString *)deviceId delegate:(id<ActivityTrackerDelegate>)delegate;
+- (void)disconnectFrom:(NSString *)deviceId;
 
 @end

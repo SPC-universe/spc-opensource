@@ -1,7 +1,7 @@
 #import "InfoPersonalViewController.h"
 #import "ActivityTrackerManager.h"
 
-@interface InfoPersonalViewController () <ActivityTrackerDelegate>
+@interface InfoPersonalViewController () <ActivityTrackerDelegate, UITextFieldDelegate>
 
 @property (strong, nonatomic) ActivityTrackerManager *activityTrackerManager;
 @property (strong, nonatomic) ActivityTracker *activityTracker;
@@ -21,8 +21,8 @@
     [super viewDidLoad];
 
     self.activityTrackerManager = [ActivityTrackerManager sharedInstance];
-    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activePeripheral delegate:self];
-
+    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activityTracker.peripheral delegate:self];
+    [self.activityTracker discoverServices];
 }
 
 #pragma mark Actions
@@ -41,27 +41,27 @@
 
 #pragma mark ActivityTrackerDelegate
 
-- (void)activityTrackerReady
+- (void)activityTrackerReady:(ActivityTracker *)activityTracker
 {
-    NSLog(@"activityTrackerReady");
+    NSLog(@"activityTrackerReady: %@", activityTracker);
 
     [self.activityTracker getPersonalInformation];
 }
 
-- (void)activityTrackerGetPersonalInformationResponseMale:(BOOL)male
-                                                      age:(Byte)age
-                                                   height:(Byte)height
-                                                   weight:(Byte)weight
-                                                   stride:(Byte)stride
-                                                 deviceId:(NSString *)deviceId
+- (void)activityTrackerGetPersonalInformationResponseMan:(BOOL)man
+                                                     age:(Byte)age
+                                                  height:(Byte)height
+                                                  weight:(Byte)weight
+                                              stepLength:(Byte)stepLength
+                                                deviceId:(NSString *)deviceId
 {
     NSLog(@"getPersonalInformationResponse");
 
-    self.genderControl.selectedSegmentIndex = male;
+    self.genderControl.selectedSegmentIndex = man;
     self.ageField.text = [NSString stringWithFormat:@"%i", age];
     self.heightField.text = [NSString stringWithFormat:@"%i", height];
     self.weightField.text = [NSString stringWithFormat:@"%i", weight];
-    self.stepLengthField.text = [NSString stringWithFormat:@"%i", stride];
+    self.stepLengthField.text = [NSString stringWithFormat:@"%i", stepLength];
 
     [self.activityTracker getTargetSteps];
 }
@@ -78,6 +78,15 @@
     NSLog(@"setPersonalInformationResponse");
 
     [self.activityTracker setTargetSteps:[self.goalField.text intValue]];
+}
+
+#pragma mark UITextFieldDelegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+
+    return YES;
 }
 
 @end

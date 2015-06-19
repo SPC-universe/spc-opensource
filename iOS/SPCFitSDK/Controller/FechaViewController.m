@@ -18,7 +18,8 @@
     [super viewDidLoad];
 
     self.activityTrackerManager = [ActivityTrackerManager sharedInstance];
-    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activePeripheral delegate:self];
+    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activityTracker.peripheral delegate:self];
+    [self.activityTracker discoverServices];
 }
 
 #pragma mark Actions
@@ -33,9 +34,9 @@
 
 #pragma mark ActivityTrackerDelegate
 
-- (void)activityTrackerReady
+- (void)activityTrackerReady:(ActivityTracker *)activityTracker
 {
-    NSLog(@"activityTrackerReady");
+    NSLog(@"activityTrackerReady: %@", activityTracker);
 
     [self.activityTracker getTime];
 }

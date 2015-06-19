@@ -14,11 +14,11 @@
 		<string>github.com:SPC-universe/spc-fitness-opensource.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>SPCFitSDK.xcodeproj</string>
+	<string>iOS/SPCFitSDK.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>3459017469B2966E72638E00B930D3763C605AC9</key>
-		<string>../..</string>
+		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>github.com:SPC-universe/spc-fitness-opensource.git</string>

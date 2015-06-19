@@ -2,10 +2,12 @@
 
 @interface ActivityTracker () <CBPeripheralDelegate>
 
-@property (strong, nonatomic) CBPeripheral *peripheral;
 @property (strong, nonatomic) CBService *activityTrackerService;
 @property (strong, nonatomic) CBCharacteristic *activityTrackerTX;
 @property (strong, nonatomic) CBCharacteristic *activityTrackerRX;
+
+@property (strong, nonatomic) NSMutableArray *cmds;
+@property (nonatomic) BOOL isReady;
 
 @end
 
@@ -16,22 +18,54 @@
 {
     self = [super init];
     if (self) {
+        _isReady = NO;
         _peripheral = peripheral;
+        _activityTrackerService = nil;
+        _activityTrackerTX = nil;
+        _activityTrackerRX = nil;
+        _cmds = [[NSMutableArray alloc] init];
+        _logs = [[NSMutableArray alloc] init];
         _delegate = delegate;
-
-        self.peripheral.delegate = self;
-        [self.peripheral discoverServices:@[[CBUUID UUIDWithString:@"FFF0"]]];
     }
     return self;
 }
 
--(BOOL)isReady
+- (void)discoverServices
 {
-    return self.peripheral &&
-        self.peripheral.state == CBPeripheralStateConnected &&
-        self.activityTrackerService &&
-        self.activityTrackerTX &&
-        self.activityTrackerRX;
+    if (!self.isReady) {
+        _peripheral.delegate = self;
+        [self.peripheral discoverServices:@[[CBUUID UUIDWithString:@"FFF0"]]];
+    }
+}
+
+#pragma mark Notificaciones
+
+- (void)postUpdateNotification
+{
+    NSDictionary *userInfo = @{ @"activityTracker": self };
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ActivityTrackerUpdateNotification" object:self userInfo:userInfo];
+}
+
+#pragma mark Log
+
+- (void)log:(NSString *)title data:(NSString *)format, ...
+{
+    va_list args;
+    va_start(args, format);
+    NSString *data = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
+    //NSLog(@"log: %@", data);
+    
+    NSDate *date = [NSDate date];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.logs addObject:@{@"date": date,
+                               @"title": title,
+                               @"data": data }];
+        
+        [self postUpdateNotification];
+    });
 }
 
 #pragma mark Commands
@@ -53,60 +87,149 @@
 #define NN 14
 #define CRC 15
 
+#define CMD_SAFE_BONDING_SAVE_PASSWORD 0x20
+
+- (void)safeBondingSavePassword:(NSString *)password
+{
+    Byte pass[6] = { 0, 0, 0, 0, 0, 0 };
+    for (int i = 0; i != 6; ++i) {
+        pass[i] = [password characterAtIndex:i];
+    }
+    
+    Byte bytes[16] = { CMD_SAFE_BONDING_SAVE_PASSWORD, pass[0], pass[1], pass[2], pass[3], pass[4], pass[5], 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)safeBondingSavePasswordResponse:(NSData *)data
+{
+    [self log:@"safeBondingSavePasswordResponse" data:@"%@", data];
+    
+    //const Byte *bytes = (const Byte *)data.bytes;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSafeBondingSavePasswordResponse)]) {
+            [self.delegate activityTrackerSafeBondingSavePasswordResponse];
+        }
+    });
+    
+    return YES;
+}
+
+#define CMD_SAFE_BONDING_SEND_PASSWORD 0x6A
+
+- (void)safeBondingSendPassword:(NSString *)password
+{
+    Byte pass[6] = { 0, 0, 0, 0, 0, 0 };
+    for (int i = 0; i != 6; ++i) {
+        pass[i] = [password characterAtIndex:i];
+    }
+
+    Byte bytes[16] = { CMD_SAFE_BONDING_SEND_PASSWORD, pass[0], pass[1], pass[2], pass[3], pass[4], pass[5], 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)safeBondingSendPasswordResponse:(NSData *)data
+{
+    [self log:@"safeBondingSendPasswordResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    BOOL error = bytes[CMD] & 0x80;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSafeBondingSendPasswordResponse:)]) {
+            [self.delegate activityTrackerSafeBondingSendPasswordResponse:error];
+        }
+    });
+    
+    return YES;
+}
+
+#define CMD_SAFE_BONDING_STATUS 0x21
+
+- (void)safeBondingStatus
+{
+    Byte bytes[16] = { CMD_SAFE_BONDING_STATUS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)safeBondingStatusResponse:(NSData *)data
+{
+    [self log:@"safeBondingStatusResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    BOOL error = bytes[CMD] & 0x80;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSafeBondingStatusResponse:)]) {
+            [self.delegate activityTrackerSafeBondingStatusResponse:error];
+        }
+    });
+    
+    return YES;
+}
+
 #define CMD_SET_TIME 0x01
 
 - (void)setTime:(NSDate *)date
 {
-    NSLog(@"setTime: %@", date);
-
+    [self log:@"setTime" data:@"%@", date];
+    
     Byte year, month, day, hour, minute, second;
-
+    
     [self BCDBytesFromDate:date day:&day month:&month year:&year hour:&hour minute:&minute second:&second];
-
-    NSLog(@"%02x/%02x/%02x %02x:%02x:%02x", day, month, year, hour, minute, second);
-
+    
+    //[self log:@"%02x/%02x/%02x %02x:%02x:%02x", day, month, year, hour, minute, second];
+    
     Byte bytes[16] = { CMD_SET_TIME, year, month, day, hour, minute, second, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)setTimeResponse:(NSData *)data
+- (BOOL)setTimeResponse:(NSData *)data
 {
-    NSLog(@"setTimeResponse: %@", data);
-
+    [self log:@"setTimeResponse" data:@"%@", data];
+    
     //const Byte *bytes = (const Byte *)data.bytes;
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerSetTimeResponse)]) {
-        [self.delegate activityTrackerSetTimeResponse];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSetTimeResponse)]) {
+            [self.delegate activityTrackerSetTimeResponse];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_TIME 0x41
 
 - (void)getTime
 {
-    NSLog(@"getTime");
+    [self log:@"getTime" data:@""];
     Byte bytes[16] = { CMD_GET_TIME, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getTimeResponse:(NSData *)data
+- (BOOL)getTimeResponse:(NSData *)data
 {
-    NSLog(@"getTimeResponse: %@", data);
-
+    [self log:@"getTimeResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
+    
     Byte year = byteFromBCD(bytes[AA]);
     Byte month = byteFromBCD(bytes[BB]);
     Byte day = byteFromBCD(bytes[CC]);
     Byte hour = byteFromBCD(bytes[DD]);
     Byte minute = byteFromBCD(bytes[EE]);
     Byte second = byteFromBCD(bytes[FF]);
-
+    
     NSDate *date = [self dateFromDay:day month:month year:year hour:hour minute:minute second:second];
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerGetTimeResponse:)]) {
-        [self.delegate activityTrackerGetTimeResponse:date];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerGetTimeResponse:)]) {
+            [self.delegate activityTrackerGetTimeResponse:date];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_SET_PERSONAL_INFORMATION 0x02
@@ -117,42 +240,46 @@
                             weight:(Byte)weight
                             stride:(Byte)stride
 {
-    NSLog(@"setPersonalInformation: %d %d %d %d %d", male, age, height, weight, stride);
-
+    [self log:@"setPersonalInformation" data:@"%d %d %d %d %d", male, age, height, weight, stride];
+    
     Byte bytes[16] = { CMD_SET_PERSONAL_INFORMATION, male, age, height, weight, stride, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)setPersonalInformationResponse:(NSData *)data
+- (BOOL)setPersonalInformationResponse:(NSData *)data
 {
-    NSLog(@"setPersonalInformation");
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerSetPersonalInformationResponse)]) {
-        [self.delegate activityTrackerSetPersonalInformationResponse];
-    }
+    [self log:@"setPersonalInformation" data:@""];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSetPersonalInformationResponse)]) {
+            [self.delegate activityTrackerSetPersonalInformationResponse];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_PERSONAL_INFORMATION 0x42
 
 - (void)getPersonalInformation
 {
-    NSLog(@"getPersonalInformation");
-
+    [self log:@"getPersonalInformation" data:@""];
+    
     Byte bytes[16] = { CMD_GET_PERSONAL_INFORMATION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getPersonalInformationResponse:(NSData *)data
+- (BOOL)getPersonalInformationResponse:(NSData *)data
 {
-    NSLog(@"getPersonalInformationResponse: %@", data);
-
+    [self log:@"getPersonalInformationResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
-    BOOL male = bytes[AA];
+    
+    BOOL man = bytes[AA];
     int age = bytes[BB];
     int height = bytes[CC];
     int weight = bytes[DD];
-    int stride = bytes[EE];
+    int stepLength = bytes[EE];
     NSString *deviceId = [NSString stringWithFormat:@"(%02x %02x %02x %02x %02x %02x)",
                           bytes[FF],
                           bytes[GG],
@@ -160,64 +287,80 @@
                           bytes[II],
                           bytes[JJ],
                           bytes[KK]];
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerGetPersonalInformationResponseMale:age:height:weight:stride:deviceId:)]) {
-        [self.delegate activityTrackerGetPersonalInformationResponseMale:male
-                                                                     age:age
-                                                                  height:height
-                                                                  weight:weight
-                                                                  stride:stride
-                                                                deviceId:deviceId];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerGetPersonalInformationResponseMan:age:height:weight:stepLength:deviceId:)]) {
+            [self.delegate activityTrackerGetPersonalInformationResponseMan:man
+                                                                        age:age
+                                                                     height:height
+                                                                     weight:weight
+                                                                 stepLength:stepLength
+                                                                   deviceId:deviceId];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_TOTAL_ACTIVITY_DATA 0x07
 
 - (void)getTotalActivityData:(Byte)day
 {
-    NSLog(@"getTotalActivityData: %d", day);
+    [self log:@"getTotalActivityData" data:@"%d", day];
     Byte bytes[16] = { CMD_GET_TOTAL_ACTIVITY_DATA, day, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getTotalActivityDataResponse:(NSData *)data
+- (BOOL)getTotalActivityDataResponse:(NSData *)data
 {
-    NSLog(@"getTotalActivityDataResponse: %@", data);
-
+    [self log:@"getTotalActivityDataResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
-    Byte dayIndex = bytes[BB];
-
-    Byte year = byteFromBCD(bytes[CC]);
-    Byte month = byteFromBCD(bytes[DD]);
-    Byte day = byteFromBCD(bytes[EE]);
-
-    NSDate *date = [self dateFromDay:day month:month year:year hour:0 minute:0 second:0];
-
-    if (bytes[AA] == 0) {
-        int steps = intFrom3Bytes(bytes[FF], bytes[GG], bytes[HH]);
-        int aerobicSteps = intFrom3Bytes(bytes[II], bytes[JJ], bytes[KK]);
-        int cal = intFrom3Bytes(bytes[LL], bytes[MM], bytes[NN]);
-
-        if ([self.delegate respondsToSelector:@selector(activityTrackerGetTotalActivityDataResponseDay:date:steps:aerobicSteps:cal:)]) {
-            [self.delegate activityTrackerGetTotalActivityDataResponseDay:dayIndex
-                                                                     date:date
-                                                                    steps:steps
-                                                             aerobicSteps:aerobicSteps
-                                                                      cal:cal];
+    
+    int dayIndex = bytes[BB];
+    
+    int year = byteFromBCD(bytes[CC]);
+    int month = byteFromBCD(bytes[DD]);
+    int day = byteFromBCD(bytes[EE]);
+    
+    //if (year || month || day) {
+        NSDate *date = [self gmtDateFromDay:day month:month year:year hour:0 minute:0 second:0];
+        
+        if (bytes[AA] == 0) {
+            int steps = intFrom3Bytes(bytes[FF], bytes[GG], bytes[HH]);
+            int aerobicSteps = intFrom3Bytes(bytes[II], bytes[JJ], bytes[KK]);
+            int calories = intFrom3Bytes(bytes[LL], bytes[MM], bytes[NN]);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self.delegate respondsToSelector:@selector(activityTrackerGetTotalActivityDataResponseDay:date:steps:aerobicSteps:calories:)]) {
+                    [self.delegate activityTrackerGetTotalActivityDataResponseDay:dayIndex
+                                                                             date:date
+                                                                            steps:steps
+                                                                     aerobicSteps:aerobicSteps
+                                                                         calories:calories];
+                }
+            });
+            
+            return NO;
         }
-    }
-    if (bytes[AA] == 1) {
-        int km = intFrom3Bytes(bytes[FF], bytes[GG], bytes[HH]);
-        int activityTime = intFrom2Bytes(bytes[II], bytes[JJ]);
-
-        if ([self.delegate respondsToSelector:@selector(activityTrackerGetTotalActivityDataResponseDay:date:km:activityTime:)]) {
-            [self.delegate activityTrackerGetTotalActivityDataResponseDay:dayIndex
-                                                                     date:date
-                                                                       km:km
-                                                             activityTime:activityTime];
+        if (bytes[AA] == 1) {
+            int distance = intFrom3Bytes(bytes[FF], bytes[GG], bytes[HH]);
+            int activityTime = intFrom2Bytes(bytes[II], bytes[JJ]);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self.delegate respondsToSelector:@selector(activityTrackerGetTotalActivityDataResponseDay:date:distance:activityTime:)]) {
+                    [self.delegate activityTrackerGetTotalActivityDataResponseDay:dayIndex
+                                                                             date:date
+                                                                         distance:distance
+                                                                     activityTime:activityTime];
+                }
+            });
+            
+            return YES;
         }
-    }
+    //}
+
+    return NO;
 }
 
 #define CMD_GET_DETAIL_ACTIVITY_DATA 0x43
@@ -243,278 +386,510 @@
 
 - (void)getDetailActivityData:(Byte)day
 {
-    NSLog(@"getDetailActivityData: %d", day);
-
-    NSLog(@"getTotalActivityData: %d", day);
+    [self log:@"getDetailActivityData" data:@"%d", day];
+    
     Byte bytes[16] = { CMD_GET_DETAIL_ACTIVITY_DATA, day, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getDetailActivityDataResponse:(NSData *)data
+- (BOOL)getDetailActivityDataResponse:(NSData *)data
 {
-    NSLog(@"getDetailActivityDataResponse: %@", data);
-
+    [self log:@"getDetailActivityDataResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
+    
     if (bytes[D_TYPE_INDEX] == D_WITHOUT_DATA) {
-        if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataResponseWithoutData)]) {
-            [self.delegate activityTrackerGetDetailActivityDataResponseWithoutData];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataResponseWithoutData)]) {
+                [self.delegate activityTrackerGetDetailActivityDataResponseWithoutData];
+            }
+        });
+        
+        return YES;
     }
     if (bytes[D_TYPE_INDEX] == D_WITH_DATA) {
-        Byte year = byteFromBCD(bytes[D_AA]);
-        Byte month = byteFromBCD(bytes[D_BB]);
-        Byte day = byteFromBCD(bytes[D_CC]);
-
-        Byte index = bytes[D_DD];
-        Byte hour = index / 4;
-        Byte minute = 15 * (index % 4);
-
-        NSLog(@"%d => %02d:%02d", index, hour, minute);
-
+        int year = byteFromBCD(bytes[D_AA]);
+        int month = byteFromBCD(bytes[D_BB]);
+        int day = byteFromBCD(bytes[D_CC]);
+        
+        int index = bytes[D_DD];
+        int hour = index / 4;
+        int minute = 15 * (index % 4);
+        
+        //[self log:@"%d => %02d:%02d", index, hour, minute];
+        
         if (bytes[D_EE] == D_ACTIVITY_DATA) {
-            NSDate *date = [self dateFromDay:day month:month year:year hour:hour minute:minute second:0];
+            NSDate *date = [self gmtDateFromDay:day month:month year:year hour:hour minute:minute second:0];
             
-            int cal = intFrom2Bytes(bytes[D_GG], bytes[D_FF]);
+            int calories = intFrom2Bytes(bytes[D_GG], bytes[D_FF]);
             int steps = intFrom2Bytes(bytes[D_II], bytes[D_HH]);
-            int km = intFrom2Bytes(bytes[D_KK], bytes[D_JJ]);
+            int distance = intFrom2Bytes(bytes[D_KK], bytes[D_JJ]);
             int aerobicSteps = intFrom2Bytes(bytes[D_MM], bytes[D_LL]);
-
-            if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataDayResponseIndex:date:steps:aerobicSteps:cal:km:)]) {
-                [self.delegate activityTrackerGetDetailActivityDataDayResponseIndex:index
-                                                                               date:date
-                                                                              steps:steps
-                                                                       aerobicSteps:aerobicSteps
-                                                                                cal:cal
-                                                                                 km:km];
-            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataDayResponseIndex:date:steps:aerobicSteps:calories:distance:)]) {
+                    [self.delegate activityTrackerGetDetailActivityDataDayResponseIndex:index
+                                                                                   date:date
+                                                                                  steps:steps
+                                                                           aerobicSteps:aerobicSteps
+                                                                               calories:calories
+                                                                               distance:distance];
+                }
+            });
         }
         if (bytes[D_EE] == D_SLEEP_QUALITY_DATA) {
+            NSMutableArray *sleepQualities = [[NSMutableArray alloc] init];
             for (int i = 0; i != 8; ++i) {
                 int sleepQuality = bytes[D_FF + i];
+                
+                NSDate *date = [self gmtDateFromDay:day month:month year:year hour:hour minute:(minute + 2*i) second:0];
+                
+                NSDictionary *sleepQualityDetail = @{ @"date": date, @"quality": @(sleepQuality) };
 
-                NSLog(@"%d => %02d:%02d", index, hour, minute);
-
-                NSDate *date = [self dateFromDay:day month:month year:year hour:hour minute:(minute + 2*i) second:0];
-
-                if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataSleepResponseIndex:date:sleepQuality:)]) {
-                    [self.delegate activityTrackerGetDetailActivityDataSleepResponseIndex:index
-                                                                                     date:date
-                                                                             sleepQuality:sleepQuality];
-                }
+                [sleepQualities addObject:sleepQualityDetail];
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self.delegate respondsToSelector:@selector(activityTrackerGetDetailActivityDataSleepResponseIndex:sleepQualities:)]) {
+                    [self.delegate activityTrackerGetDetailActivityDataSleepResponseIndex:index
+                                                                           sleepQualities:sleepQualities];
+                    //date:date
+                    //sleepQuality:sleepQuality
+                }
+            });
         }
+        
+        if (index == 95) return YES;
     }
+    
+    return NO;
 }
 
 #define CMD_DELETE_ACTIVITY_DATA 0x04
 
 - (void)deleteActivityData:(Byte)day
 {
-    NSLog(@"deleteActivityData: %d", day);
+    [self log:@"deleteActivityData" data:@"%d", day];
     Byte bytes[16] = { CMD_DELETE_ACTIVITY_DATA, day, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)deleteActivityDataResponse:(NSData *)data
+- (BOOL)deleteActivityDataResponse:(NSData *)data
 {
-    NSLog(@"deleteActivityDataResponse: %@", data);
-
+    [self log:@"deleteActivityDataResponse" data:@"%@", data];
+    
     //const Byte *bytes = (const Byte *)data.bytes;
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerDeleteActivityDataResponse)]) {
-        [self.delegate activityTrackerDeleteActivityDataResponse];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerDeleteActivityDataResponse)]) {
+            [self.delegate activityTrackerDeleteActivityDataResponse];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_START_REAL_TIME_METER_MODE_AND_UPDATES 0x09
 
 - (void)startRealTimeMeterMode
 {
-    NSLog(@"startRealTimeMeterMode");
+    [self log:@"startRealTimeMeterMode" data:@""];
     Byte bytes[16] = { CMD_START_REAL_TIME_METER_MODE_AND_UPDATES, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)realTimeMeterModeResponse:(NSData *)data
+- (BOOL)realTimeMeterModeResponse:(NSData *)data
 {
-    NSLog(@"realTimeMeterModeResponse: %@", data);
-
+    [self log:@"realTimeMeterModeResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
+    
     int steps = intFrom3Bytes(bytes[AA], bytes[BB], bytes[CC]);
     int aerobicSteps = intFrom3Bytes(bytes[DD], bytes[EE], bytes[FF]);
-    int cal = intFrom3Bytes(bytes[GG], bytes[HH], bytes[II]);
-    int km = intFrom3Bytes(bytes[JJ], bytes[KK], bytes[LL]);
+    int calories = intFrom3Bytes(bytes[GG], bytes[HH], bytes[II]);
+    int distance = intFrom3Bytes(bytes[JJ], bytes[KK], bytes[LL]);
     int activityTime = intFrom2Bytes(bytes[MM], bytes[NN]);
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerRealTimeModeResponseSteps:aerobicSteps:cal:km:activityTime:)]) {
-        [self.delegate activityTrackerRealTimeModeResponseSteps:steps
-                                                   aerobicSteps:aerobicSteps
-                                                            cal:cal
-                                                             km:km
-                                                   activityTime:activityTime];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerRealTimeModeResponseSteps:aerobicSteps:calories:distance:activityTime:)]) {
+            [self.delegate activityTrackerRealTimeModeResponseSteps:steps
+                                                       aerobicSteps:aerobicSteps
+                                                           calories:calories
+                                                           distance:distance
+                                                       activityTime:activityTime];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_STOP_REAL_TIME_METER_MODE 0x0A
 
 - (void)stopRealTimeMeterMode
 {
-    NSLog(@"stopRealTimeMeterMode");
+    [self log:@"stopRealTimeMeterMode" data:@""];
     Byte bytes[16] = { CMD_STOP_REAL_TIME_METER_MODE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)stopRealTimeMeterModeResponse:(NSData *)data
+- (BOOL)stopRealTimeMeterModeResponse:(NSData *)data
 {
-    NSLog(@"stopRealTimeMeterModeResponse: %@", data);
-
+    [self log:@"stopRealTimeMeterModeResponse" data:@"%@", data];
+    
     //const Byte *bytes = (const Byte *)data.bytes;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerStopRealTimeMeterModeResponse)]) {
+            [self.delegate activityTrackerStopRealTimeMeterModeResponse];
+        }
+    });
+    
+    return YES;
+}
 
-    if ([self.delegate respondsToSelector:@selector(activityTrackerStopRealTimeMeterModeResponse)]) {
-        [self.delegate activityTrackerStopRealTimeMeterModeResponse];
-    }
+#define CMD_SWITCH_SLEEP_MONITOR_MODE 0x49
+
+- (void)switchSleepMonitorMode
+{
+    [self log:@"switchSleepMonitorMode" data:@""];
+    Byte bytes[16] = { CMD_SWITCH_SLEEP_MONITOR_MODE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)switchSleepMonitorModeResponse:(NSData *)data
+{
+    [self log:@"switchSleepMonitorModeResponse" data:@"%@", data];
+    
+    //const Byte *bytes = (const Byte *)data.bytes;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSwitchSleepMonitorModeResponse)]) {
+            [self.delegate activityTrackerSwitchSleepMonitorModeResponse];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_CURRENT_ACTIVITY_INFORMATION 0x48
 
 - (void)getCurrentActivityInformation
 {
-    NSLog(@"getCurrentActivityInformation");
+    [self log:@"getCurrentActivityInformation" data:@""];
     Byte bytes[16] = { CMD_GET_CURRENT_ACTIVITY_INFORMATION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getCurrentActivityInformationResponse:(NSData *)data
+- (BOOL)getCurrentActivityInformationResponse:(NSData *)data
 {
-    NSLog(@"getCurrentActivityInformationResponse: %@", data);
-
-    //const Byte *bytes = (const Byte *)data.bytes;
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerGetCurrentActivityInformationResponse)]) {
-        [self.delegate activityTrackerGetCurrentActivityInformationResponse];
-    }
+    [self log:@"getCurrentActivityInformationResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    
+    int steps = intFrom3Bytes(bytes[AA], bytes[BB], bytes[CC]);
+    int aerobicSteps = intFrom3Bytes(bytes[DD], bytes[EE], bytes[FF]);
+    int calories = intFrom3Bytes(bytes[GG], bytes[HH], bytes[II]);
+    int distance = intFrom3Bytes(bytes[JJ], bytes[KK], bytes[LL]);
+    int activityTime = intFrom2Bytes(bytes[MM], bytes[NN]);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerGetCurrentActivityInformationResponseSteps:aerobicSteps:calories:distance:activityTime:)]) {
+            [self.delegate activityTrackerGetCurrentActivityInformationResponseSteps:steps
+                                                                        aerobicSteps:aerobicSteps
+                                                                            calories:calories
+                                                                            distance:distance
+                                                                        activityTime:activityTime];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_QUERY_DATA_STORAGE 0x46
 
 - (void)queryDataStorage
 {
-    NSLog(@"queryDataStorage");
+    [self log:@"queryDataStorage" data:@""];
     Byte bytes[16] = { CMD_QUERY_DATA_STORAGE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)queryDataStorageResponse:(NSData *)data
+- (BOOL)queryDataStorageResponse:(NSData *)data
 {
-    NSLog(@"queryDataStorageResponse: %@", data);
-
-    //const Byte *bytes = (const Byte *)data.bytes;
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerQueryDataStorageResponse)]) {
-        [self.delegate activityTrackerQueryDataStorageResponse];
+    [self log:@"queryDataStorageResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    
+    int queryDataStorage = intFrom4Bytes(bytes[AA], bytes[BB], bytes[CC], bytes[DD]);
+    
+    NSMutableArray *dataStorage = [[NSMutableArray alloc] init];
+    for (int i = 0; i != 32; ++i) {
+        BOOL hasData = queryDataStorage & 0x00000001;
+        [dataStorage addObject:@(hasData)];
+        queryDataStorage >>= 1;
     }
+    
+    [self log:@"dataStorage" data:@"%@", dataStorage];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerQueryDataStorageResponse:)]) {
+            [self.delegate activityTrackerQueryDataStorageResponse:dataStorage];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_SET_TARGET_STEPS 0x0B
 
 - (void)setTargetSteps:(int)steps
 {
-    NSLog(@"setTargetSteps: %d", steps);
-
+    [self log:@"setTargetSteps" data:@"%d", steps];
+    
     Byte steps1 = 0xff & (steps >> 16);
     Byte steps2 = 0xff & (steps >> 8);
     Byte steps3 = 0xff & steps;
-
-    NSLog(@"%x %x %x %x", steps, steps1, steps2, steps3);
-
+    
+    //[self log:@"%x %x %x %x", steps, steps1, steps2, steps3];
+    
     Byte bytes[16] = { CMD_SET_TARGET_STEPS, steps1, steps2, steps3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)setTargetStepsResponse:(NSData *)data
+- (BOOL)setTargetStepsResponse:(NSData *)data
 {
-    NSLog(@"setTargetStepsResponse: %@", data);
-
+    [self log:@"setTargetStepsResponse" data:@"%@", data];
+    
     //const Byte *bytes = (const Byte *)data.bytes;
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerSetTargetStepsResponse)]) {
-        [self.delegate activityTrackerSetTargetStepsResponse];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerSetTargetStepsResponse)]) {
+            [self.delegate activityTrackerSetTargetStepsResponse];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_TARGET_STEPS 0x4B
 
 - (void)getTargetSteps
 {
-    NSLog(@"getTargetSteps");
+    [self log:@"getTargetSteps" data:@""];
     Byte bytes[16] = { CMD_GET_TARGET_STEPS, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getTargetStepsResponse:(NSData *)data
+- (BOOL)getTargetStepsResponse:(NSData *)data
 {
-    NSLog(@"getTargetStepsResponse: %@", data);
-
+    [self log:@"getTargetStepsResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
+    
     int steps = intFrom3Bytes(bytes[AA], bytes[BB], bytes[CC]);
-
-    if ([self.delegate respondsToSelector:@selector(activityTrackerGetTargetStepsResponse:)]) {
-        [self.delegate activityTrackerGetTargetStepsResponse:steps];
-    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerGetTargetStepsResponse:)]) {
+            [self.delegate activityTrackerGetTargetStepsResponse:steps];
+        }
+    });
+    
+    return YES;
 }
 
 #define CMD_GET_ACTIVITY_GOAL_ACHIEVED_RATE 0x08
 
 - (void)getActivityGoalAchievedRate:(Byte)day
 {
-    NSLog(@"getActivityGoalAchievedRateDay: %d", day);
+    [self log:@"getActivityGoalAchievedRateDay" data:@"%d", day];
     Byte bytes[16] = { CMD_GET_ACTIVITY_GOAL_ACHIEVED_RATE, day, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     [self sendCmdDataWithCRC:bytes];
 }
 
-- (void)getActivityGoalAchievedRateResponse:(NSData *)data
+- (BOOL)getActivityGoalAchievedRateResponse:(NSData *)data
 {
-    NSLog(@"getActivityGoalAchievedRateDayResponse: %@", data);
-
+    [self log:@"getActivityGoalAchievedRateDayResponse" data:@"%@", data];
+    
     const Byte *bytes = (const Byte *)data.bytes;
-
+    
     Byte dayIndex = bytes[AA];
-
+    
     Byte year = byteFromBCD(bytes[BB]);
     Byte month = byteFromBCD(bytes[CC]);
     Byte day = byteFromBCD(bytes[DD]);
-
+    
     if (year && month && day) {
-        NSDate *date = [self dateFromDay:day month:month year:year hour:0 minute:0 second:0];
-
+        NSDate *date = [self gmtDateFromDay:day month:month year:year hour:0 minute:0 second:0];
+        
         Byte goalAchievedRate = bytes[EE];
-
+        
         int activitySpeed = intFrom2Bytes(bytes[FF], bytes[GG]);
         int ex = intFrom3Bytes(bytes[HH], bytes[II], bytes[JJ]);
         int goalFinishedPercent = intFrom2Bytes(bytes[KK], bytes[LL]);
-
-        if ([self.delegate respondsToSelector:@selector(activityTrackerGetActivityGoalAchievedRateResponseDay:date:goalAchievedRate:activitySpeed:ex:goalFinishedPercent:)]) {
-            [self.delegate activityTrackerGetActivityGoalAchievedRateResponseDay:dayIndex
-                                                                            date:date
-                                                                goalAchievedRate:goalAchievedRate
-                                                                   activitySpeed:activitySpeed
-                                                                              ex:ex
-                                                             goalFinishedPercent:goalFinishedPercent];
-        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(activityTrackerGetActivityGoalAchievedRateResponseDay:date:goalAchievedRate:activitySpeed:ex:goalFinishedPercent:)]) {
+                [self.delegate activityTrackerGetActivityGoalAchievedRateResponseDay:dayIndex
+                                                                                date:date
+                                                                    goalAchievedRate:goalAchievedRate
+                                                                       activitySpeed:activitySpeed
+                                                                                  ex:ex
+                                                                 goalFinishedPercent:goalFinishedPercent];
+            }
+        });
     }
+    
+    return YES;
+}
+
+/*******
+ * ECG *
+ *******/
+
+#define CMD_START_ECG_MODE 0x99
+
+- (void)startECGMode
+{
+    [self log:@"startECGMode" data:@""];
+    Byte bytes[16] = { CMD_START_ECG_MODE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+#define CMD_ECG_MODE_UPDATES 0xA9
+
+- (BOOL)ECGModeResponse:(NSData *)data
+{
+    [self log:@"ECGModeResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    
+    NSDate *date = [NSDate date];
+    NSMutableArray *ECGData = [[NSMutableArray alloc] init];
+    for (int i = 1; i != 16; ++i) {
+        [ECGData addObject:@(bytes[i])];
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerECGModeResponseDate:data:)]) {
+            [self.delegate activityTrackerECGModeResponseDate:date
+                                                         data:ECGData];
+        }
+    });
+    
+    return YES;
+}
+
+#define CMD_STOP_ECG_MODE 0x98
+#define CMD_STOP_ECG_MODE_OK 0xA8
+#define CMD_STOP_ECG_MODE_ERROR 0xBA
+
+- (void)stopECGMode
+{
+    [self log:@"stopECGMode" data:@""];
+    Byte bytes[16] = { CMD_STOP_ECG_MODE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)stopECGModeResponse:(NSData *)data
+{
+    [self log:@"stopECGModeResponse" data:@"%@", data];
+    
+    //const Byte *bytes = (const Byte *)data.bytes;
+    
+    /*dispatch_async(dispatch_get_main_queue(), ^{
+     if ([self.delegate respondsToSelector:@selector(activityTrackerStopRealTimeMeterModeResponse)]) {
+     [self.delegate activityTrackerStopRealTimeMeterModeResponse];
+     }
+     });*/
+    
+    return YES;
+}
+
+#define CMD_DELETE_ECG_DATA 0x97
+#define CMD_DELETE_ECG_DATA_ERROR 0xA7
+
+- (void)deleteECGData
+{
+    [self log:@"deleteECGData" data:@""];
+    Byte bytes[16] = { CMD_DELETE_ECG_DATA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)deleteECGDataResponse:(NSData *)data
+{
+    [self log:@"deleteECGDataResponse" data:@"%@", data];
+    
+    //const Byte *bytes = (const Byte *)data.bytes;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerDeleteECGDataResponse)]) {
+            [self.delegate activityTrackerDeleteECGDataResponse];
+        }
+    });
+    
+    return YES;
+}
+
+#define CMD_GET_ECG_DATA 0x96
+#define CMD_GET_ECG_DATA_ERROR 0xA6
+
+- (void)getECGData:(Byte)index
+{
+    [self log:@"getECGData" data:@""];
+    Byte bytes[16] = { CMD_GET_ECG_DATA, index, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    [self sendCmdDataWithCRC:bytes];
+}
+
+- (BOOL)getECGDataDataResponse:(NSData *)data
+{
+    [self log:@"getECGDataDataResponse" data:@"%@", data];
+    
+    const Byte *bytes = (const Byte *)data.bytes;
+    
+    Byte year = byteFromBCD(bytes[BB]);
+    Byte month = byteFromBCD(bytes[CC]);
+    Byte day = byteFromBCD(bytes[DD]);
+    Byte hour = byteFromBCD(bytes[EE]);
+    Byte minute = byteFromBCD(bytes[FF]);
+    Byte second = byteFromBCD(bytes[GG]);
+    Byte heartRate = bytes[HH];
+    
+    NSDate *date = [self gmtDateFromDay:day month:month year:year hour:hour minute:minute second:second];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(activityTrackerGetECGDataResponseDate:heartRate:)]) {
+            [self.delegate activityTrackerGetECGDataResponseDate:date
+                                                       heartRate:heartRate];
+        }
+    });
+    
+    return YES;
 }
 
 #pragma mark Communication
+
+- (void)enqueueCmdData:(NSData *)data
+{
+    //[self log:@"enqueueCmdData" data:@"%@", data];
+    [self.cmds addObject:data];
+}
 
 - (void)sendCmdDataWithCRC:(Byte[16])bytes
 {
     bytes[CRC] = [self calculateCRC:bytes];
     NSData *data = [[NSData alloc] initWithBytes:bytes length:16];
+    if (self.cmds.count == 0) {
+        [self enqueueCmdData:data];
+        [self sendNextCmd];
+    } else {
+        [self enqueueCmdData:data];
+    }
+}
 
-    if (self.isReady) {
+- (void)sendNextCmd
+{
+    NSData *data = [self.cmds firstObject];
+    //[self log:@"sendNextCmd" data:@"%@", data];
+    if (data) {
         [self.peripheral writeValue:data
                   forCharacteristic:self.activityTrackerTX
                                type:CBCharacteristicWriteWithResponse];
@@ -527,7 +902,7 @@
     for(int i = 0; i != 15; ++i) {
         crc += bytes[i];
     }
-    NSLog(@"crc = %x", crc);
+    //[self log:@"crc = %x", crc];
     return crc;
 }
 
@@ -536,9 +911,9 @@ Byte byteFromBCD(Byte bcd)
     Byte high = (bcd & 0xf0) >> 4;
     Byte low = bcd & 0x0f;
     Byte byte = (10 * high) + low;
-
-    NSLog(@"%02x = %02x %02x => %d", bcd, high, low, byte);
-
+    
+    //[self log:@"%02x = %02x %02x => %d", bcd, high, low, byte);
+    
     return byte;
 }
 
@@ -547,10 +922,15 @@ Byte BCDFromByte(Byte byte)
     Byte high = byte / 10;
     Byte low = byte % 10;
     Byte bcd = (high << 4) + low;
-
-    NSLog(@"%02x = %02x %02x => %d", bcd, high, low, byte);
-
+    
+    //[self log:@"%02x = %02x %02x => %d", bcd, high, low, byte);
+    
     return bcd;
+}
+
+int intFrom4Bytes(Byte a, Byte b, Byte c, Byte d)
+{
+    return 256 * 256 * 256 * a + 256 * 256 * b + 256 * c + d;
 }
 
 int intFrom3Bytes(Byte a, Byte b, Byte c)
@@ -563,18 +943,29 @@ int intFrom2Bytes(Byte a, Byte b)
     return 256 * a + b;
 }
 
-- (NSDate *)dateFromDay:(Byte)day month:(Byte)month year:(Byte)year hour:(Byte)hour minute:(Byte)minute second:(Byte)second
+- (NSDate *)gmtDateFromDay:(int)day month:(int)month year:(int)year hour:(int)hour minute:(int)minute second:(int)second
 {
-    NSDateFormatter *ddmmyyyy = [[NSDateFormatter alloc] init];
-    ddmmyyyy.dateFormat = @"dd/MM/yyyy HH:mm:ss";
-    NSDate *date = [ddmmyyyy dateFromString:[NSString stringWithFormat:@"%02d/%02d/20%02d %02d:%02d:%02d", day, month, year, hour, minute, second]];
+    NSDateFormatter *gmt = [[NSDateFormatter alloc] init];
+    gmt.dateFormat = @"dd/MM/yyyy HH:mm:ss";
+    [gmt setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
+    
+    NSDate *date = [gmt dateFromString:[NSString stringWithFormat:@"%02d/%02d/20%02d %02d:%02d:%02d", day, month, year, hour, minute, second]];
+    return date;
+}
+
+- (NSDate *)dateFromDay:(int)day month:(int)month year:(int)year hour:(int)hour minute:(int)minute second:(int)second
+{
+    NSDateFormatter *ddMMyyyyHHmmss = [[NSDateFormatter alloc] init];
+    ddMMyyyyHHmmss.dateFormat = @"dd/MM/yyyy HH:mm:ss";
+    
+    NSDate *date = [ddMMyyyyHHmmss dateFromString:[NSString stringWithFormat:@"%02d/%02d/20%02d %02d:%02d:%02d", day, month, year, hour, minute, second]];
     return date;
 }
 
 - (void)BCDBytesFromDate:(NSDate *)date day:(Byte *)day month:(Byte *)month year:(Byte *)year hour:(Byte *)hour minute:(Byte *)minute second:(Byte *)second
 {
     NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitDay|NSCalendarUnitMonth|NSCalendarUnitYear|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond fromDate:date];
-
+    
     *day = BCDFromByte([components day]);
     *month = BCDFromByte([components month]);
     *year = BCDFromByte([components year] - 2000);
@@ -592,148 +983,150 @@ int intFrom2Bytes(Byte a, Byte b)
 
 #pragma mark parseResponse
 
-#define CMD_ERROR_MASK 0x7f
+#define CMD_ERROR_MASK 0x7F
 
 - (void)parseResponse:(NSData *)data
 {
-    NSLog(@"parseResponse: %@", data);
-
+    BOOL done = NO;
+    
     const Byte cmd = *(const Byte *)data.bytes;
-    switch (cmd & CMD_ERROR_MASK) {
+    
+    // ECG CMDs
+    switch (cmd) {
+        case CMD_GET_ECG_DATA:
+        case CMD_GET_ECG_DATA_ERROR:
+            done = [self getECGDataDataResponse:data];
+            break;
+        case CMD_DELETE_ECG_DATA:
+        case CMD_DELETE_ECG_DATA_ERROR:
+            done = [self deleteECGDataResponse:data];
+            break;
+        //case CMD_STOP_ECG_MODE: // ¿Llega alguna vez? Creo que no
+        case CMD_STOP_ECG_MODE_OK:
+        case CMD_STOP_ECG_MODE_ERROR:
+            done = [self stopECGModeResponse:data];
+            break;
+        //case CMD_START_ECG_MODE: // ¿Llega alguna vez? Creo que no
+        case CMD_ECG_MODE_UPDATES:
+            done = [self ECGModeResponse:data];
+            // Eliminar el primero de la cola solo si es el start, mejor que este return
+            return;
+            break;
+    }
+
+    // Other CMDs
+    if(!done) switch (cmd & CMD_ERROR_MASK) {
+        case CMD_SAFE_BONDING_SAVE_PASSWORD:
+            done = [self safeBondingSavePasswordResponse:data];
+            break;
+        case CMD_SAFE_BONDING_SEND_PASSWORD:
+            done = [self safeBondingSendPasswordResponse:data];
+            break;
+        case CMD_SAFE_BONDING_STATUS:
+            done = [self safeBondingStatusResponse:data];
+            break;
         case CMD_SET_TIME:
-            [self setTimeResponse:data];
+            done = [self setTimeResponse:data];
             break;
         case CMD_GET_TIME:
-            [self getTimeResponse:data];
+            done = [self getTimeResponse:data];
             break;
         case CMD_SET_PERSONAL_INFORMATION:
-            [self setPersonalInformationResponse:data];
+            done = [self setPersonalInformationResponse:data];
             break;
         case CMD_GET_PERSONAL_INFORMATION:
-            [self getPersonalInformationResponse:data];
+            done = [self getPersonalInformationResponse:data];
             break;
         case CMD_GET_TOTAL_ACTIVITY_DATA:
-            [self getTotalActivityDataResponse:data];
+            done = [self getTotalActivityDataResponse:data];
             break;
         case CMD_GET_DETAIL_ACTIVITY_DATA:
-            [self getDetailActivityDataResponse:data];
+            done = [self getDetailActivityDataResponse:data];
             break;
         case CMD_DELETE_ACTIVITY_DATA:
-            [self deleteActivityDataResponse:data];
+            done = [self deleteActivityDataResponse:data];
             break;
         case CMD_START_REAL_TIME_METER_MODE_AND_UPDATES:
-            [self realTimeMeterModeResponse:data];
+            done = [self realTimeMeterModeResponse:data];
             break;
         case CMD_STOP_REAL_TIME_METER_MODE:
-            [self stopRealTimeMeterModeResponse:data];
+            done = [self stopRealTimeMeterModeResponse:data];
+            break;
+        case CMD_SWITCH_SLEEP_MONITOR_MODE:
+            done = [self switchSleepMonitorModeResponse:data];
             break;
         case CMD_GET_CURRENT_ACTIVITY_INFORMATION:
-            [self getCurrentActivityInformationResponse:data];
+            done = [self getCurrentActivityInformationResponse:data];
             break;
         case CMD_QUERY_DATA_STORAGE:
-            [self queryDataStorageResponse:data];
+            done = [self queryDataStorageResponse:data];
             break;
         case CMD_SET_TARGET_STEPS:
-            [self setTargetStepsResponse:data];
+            done = [self setTargetStepsResponse:data];
             break;
         case CMD_GET_TARGET_STEPS:
-            [self getTargetStepsResponse:data];
+            done = [self getTargetStepsResponse:data];
             break;
         case CMD_GET_ACTIVITY_GOAL_ACHIEVED_RATE:
-            [self getActivityGoalAchievedRateResponse:data];
+            done = [self getActivityGoalAchievedRateResponse:data];
             break;
+    }
+    if (done) {
+        if (self.cmds.count > 0) [self.cmds removeObjectAtIndex:0];
+        if (self.cmds.count > 0) [self sendNextCmd];
     }
 }
 
 #pragma mark CBPeripheralDelegate
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    NSLog(@"peripheral: %@ didDiscoverServices", peripheral.name);
-
+    NSLog(@"peripheral: %@ %@ didDiscoverServices", peripheral.name, peripheral.identifier.UUIDString);
+    
     for (CBService *service in peripheral.services) {
         NSLog(@"service: %@ (%@)", service.UUID, service.UUID.UUIDString);
-
+        
         if ([service.UUID.UUIDString isEqualToString:@"FFF0"]) {
             self.activityTrackerService = service;
             [peripheral discoverCharacteristics:@[[CBUUID UUIDWithString:@"FFF6"], [CBUUID UUIDWithString:@"FFF7"]] forService:service];
         }
     }
-
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service
              error:(NSError *)error
 {
-    NSLog(@"peripheral: %@ didDiscoverCharacteristicsForService: %@ (%@)",
-          peripheral.name,
+    NSLog(@"peripheral: %@ %@ didDiscoverCharacteristicsForService: %@ (%@)",
+          peripheral.name, peripheral.identifier.UUIDString,
           service.UUID, service.UUID.UUIDString);
-
+    
     for (CBCharacteristic *characteristic in service.characteristics) {
         NSLog(@"characteristic: %@ (%@) =>  isNotifying: %@", characteristic.UUID, characteristic.UUID.UUIDString, characteristic.isNotifying ? @"YES" : @"NO");
-
-        //[self.peripheral discoverDescriptorsForCharacteristic:characteristic];
-
+        
         if ([characteristic.UUID.UUIDString isEqualToString:@"FFF6"]) {
             self.activityTrackerTX = characteristic;
-            //[self.peripheral setNotifyValue:YES forCharacteristic:self.activityTrackerTX];
-            //[peripheral readValueForCharacteristic:characteristic];
         }
         if ([characteristic.UUID.UUIDString isEqualToString:@"FFF7"]) {
             self.activityTrackerRX = characteristic;
             [self.peripheral setNotifyValue:YES forCharacteristic:self.activityTrackerRX];
-            //[self.peripheral discoverDescriptorsForCharacteristic:characteristic];
-            //[peripheral readValueForCharacteristic:characteristic];
-        }
-        if (self.activityTrackerTX && self.activityTrackerRX) {
-            if ([self.delegate respondsToSelector:@selector(activityTrackerReady)]) {
-                [self.delegate activityTrackerReady];
-            }
         }
     }
-}
-
-- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
-{
-    NSLog(@"didWriteValueForCharacteristic: %@ = %@", characteristic.UUID, characteristic.value);
-
-    if (characteristic == self.activityTrackerTX) {
-        //[self.peripheral readValueForCharacteristic:self.activityTrackerTX];
+    if (!self.isReady && self.activityTrackerTX && self.activityTrackerRX) {
+        self.isReady = YES;
+        
+        if ([self.delegate respondsToSelector:@selector(activityTrackerReady:)]) {
+            [self.delegate activityTrackerReady:self];
+        }
     }
-    if (characteristic == self.activityTrackerRX) {
-        //[self.peripheral readValueForCharacteristic:self.activityTrackerRX];
-    }
-}
-
--(void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
-{
-    NSLog(@"didUpdateNotificationStateForCharacteristic: %@ (%@) isNotifying: %@",
-          [self characteristicName:characteristic],
-          characteristic.UUID,
-          characteristic.isNotifying ? @"YES" : @"NO");
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic
              error:(NSError *)error
 {
-    NSLog(@"didUpdateValueForCharacteristic: %@ (%@) = %@", [self characteristicName:characteristic], characteristic.UUID, characteristic.value);
-
-    [self parseResponse:characteristic.value];
-
-    /*if (characteristic) {
-        NSDictionary *postInfo = @{ @"characteristic": characteristic,
-                                    @"UUID": characteristic.UUID,
-                                    @"value": characteristic.value ? characteristic.value : @"(null)" };
-        [self postUpdateNotification:postInfo];
-    }*/
-}
-
-- (void)peripheral:(CBPeripheral *)peripheral didDiscoverDescriptorsForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
-{
-    NSLog(@"didDiscoverDescriptorsForCharacteristic: %@ (%@) = %@", [self characteristicName:characteristic], characteristic.UUID, characteristic.value);
-
-    for (CBDescriptor *descriptor in characteristic.descriptors) {
-        NSLog(@"descriptor: %@ (%@) => %@ %@", descriptor.UUID, descriptor.UUID.UUIDString, descriptor.description, descriptor.value);
-    }
+    NSData *data = [characteristic.value copy];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [self parseResponse:data];
+    });
 }
 
 @end

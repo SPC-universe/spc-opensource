@@ -11,8 +11,10 @@ Servicio que permite:
 
 El servicio envía dos notificaciones:
 
-- `ActivityTrackerManagerUpdateNotification`: Se ha actualizado la lista de dispositivos
+- `ActivityTrackerManagerStateUpdatedNotification`: Se ha actualizado el estado de Bluetooth (encendido, apagado...)
+- `ActivityTrackerManagerFoundNotification`: Se ha encontrado un dispositivo
 - `ActivityTrackerManagerConnectedNotification`: Se ha conectado con un dispositivo
+- `ActivityTrackerManagerDisconnectedNotification`: Se ha conectado con un dispositivo
 
 ## Utilización en un proyecto
 

@@ -22,11 +22,23 @@ La aplicación de ejemplo permite:
 
 ## Utilización en un ViewController
 
+### `FechaViewController.h`
+
 ```objc
-#import "ViewController.h"
+#import <UIKit/UIKit.h>
+
+@interface FechaViewController : UIViewController
+
+@end
+```
+
+### `FechaViewController.m`
+
+```objc
+#import "FechaViewController.h"
 #import "ActivityTrackerManager.h"
 
-@interface ViewController () <ActivityTrackerDelegate>
+@interface FechaViewController () <ActivityTrackerDelegate>
 
 @property (strong, nonatomic) ActivityTrackerManager *activityTrackerManager;
 @property (strong, nonatomic) ActivityTracker *activityTracker;
@@ -43,7 +55,8 @@ La aplicación de ejemplo permite:
     [super viewDidLoad];
 
     self.activityTrackerManager = [ActivityTrackerManager sharedInstance];
-    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activePeripheral delegate:self];
+    self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activityTracker.peripheral delegate:self];
+    [self.activityTracker discoverServices];
 }
 
 #pragma mark Actions
@@ -58,9 +71,9 @@ La aplicación de ejemplo permite:
 
 #pragma mark ActivityTrackerDelegate
 
-- (void)activityTrackerReady
+- (void)activityTrackerReady:(ActivityTracker *)activityTracker
 {
-    NSLog(@"activityTrackerReady");
+    NSLog(@"activityTrackerReady: %@", activityTracker);
 
     [self.activityTracker getTime];
 }
@@ -72,9 +85,9 @@ La aplicación de ejemplo permite:
     self.timeField.text = [NSString stringWithFormat:@"%@", date];
 }
 
-- (void)activityTrackerSetTimeResponse
+- (void)activityTrackerSetTimeResponse:(BOOL)error
 {
-    NSLog(@"setTimeResponse");
+    NSLog(@"setTimeResponse: %@", error ? @"YES" : @"NO");
 }
 
 @end
@@ -93,8 +106,10 @@ Servicio que permite:
 
 El servicio envía dos notificaciones:
 
-- ActivityTrackerManagerUpdateNotification: Se ha actualizado la lista de dispositivos
-- ActivityTrackerManagerConnectedNotification: Se ha conectado con un dispositivo
+- `ActivityTrackerManagerStateUpdatedNotification`: Se ha actualizado el estado de Bluetooth (encendido, apagado...)
+- `ActivityTrackerManagerFoundNotification`: Se ha encontrado un dispositivo
+- `ActivityTrackerManagerConnectedNotification`: Se ha conectado con un dispositivo
+- `ActivityTrackerManagerDisconnectedNotification`: Se ha conectado con un dispositivo
 
 ## ActivityTracker
 
@@ -111,74 +126,123 @@ Clase que encapsula el protocolo de comunicación y utiliza delegación para not
                             weight:(Byte)weight
                             stride:(Byte)stride;
 - (void)getPersonalInformation;
-- (void)getDetailActivityData:(Byte)day;
+- (void)getCurrentActivityInformation;
 - (void)getTotalActivityData:(Byte)day;
+- (void)getDetailActivityData:(Byte)day;
 - (void)deleteActivityData:(Byte)day;
 - (void)startRealTimeMeterMode;
 - (void)stopRealTimeMeterMode;
-- (void)getCurrentActivityInformation;
 - (void)queryDataStorage;
 - (void)setTargetSteps:(int)steps;
 - (void)getTargetSteps;
-- (void)getActivityGoalAchievedRateDay:(Byte)day;
+- (void)getActivityGoalAchievedRate:(Byte)day;
+
+// Comandos para nuevas pulseras
+- (void)safeBondingSavePassword:(NSString *)password;
+- (void)safeBondingSendPassword:(NSString *)password;
+- (void)safeBondingStatus;
+
+- (void)switchSleepMonitorMode;
+
+- (void)startECGMode;
+- (void)stopECGMode;
+- (void)deleteECGData;
+- (void)getECGData:(Byte)index;
 ```
 
-### Protocolo ActivityTrackerDelegate
+### Protocolo `ActivityTrackerDelegate.h`
+
+Protocolo con las posibles respuestas al delegado asignado durante la creación de un ActivityTracker:
 
 ```objc
+self.activityTrackerManager = [ActivityTrackerManager sharedInstance];
+self.activityTracker = [[ActivityTracker alloc] initWithPeripheral:self.activityTrackerManager.activityTracker.peripheral delegate:self];
+[self.activityTracker discoverServices];
+```
+
+```objc
+@class ActivityTracker;
+
 @protocol ActivityTrackerDelegate <NSObject>
 
 @optional
-- (void)activityTrackerReady;
+- (void)activityTrackerReady:(ActivityTracker *)activityTracker;
+
+- (void)activityTrackerSafeBondingSavePasswordResponse;
+- (void)activityTrackerSafeBondingSendPasswordResponse:(BOOL)error;
+- (void)activityTrackerSafeBondingStatusResponse:(BOOL)error;
 
 - (void)activityTrackerSetTimeResponse;
 - (void)activityTrackerGetTimeResponse:(NSDate *)date;
 
 - (void)activityTrackerSetPersonalInformationResponse;
-- (void)activityTrackerGetPersonalInformationResponseMale:(BOOL)male
-                                                      age:(Byte)age
-                                                   height:(Byte)height
-                                                   weight:(Byte)weight
-                                                   stride:(Byte)stride
-                                                 deviceId:(NSString *)deviceId;
+- (void)activityTrackerGetPersonalInformationResponseMan:(BOOL)man
+                                                     age:(Byte)age
+                                                  height:(Byte)height
+                                                  weight:(Byte)weight
+                                              stepLength:(Byte)stepLength
+                                                deviceId:(NSString *)deviceId;
 
-- (void)activityTrackerGetTotalActivityDataResponseDay:(Byte)day
+- (void)activityTrackerGetTotalActivityDataResponseDay:(int)day
                                                   date:(NSDate *)date
                                                  steps:(int)steps
                                           aerobicSteps:(int)aerobicSteps
-                                                   cal:(int)cal;
-- (void)activityTrackerGetTotalActivityDataResponseDay:(Byte)day
+                                              calories:(int)calories;
+- (void)activityTrackerGetTotalActivityDataResponseDay:(int)day
                                                   date:(NSDate *)date
-                                                    km:(int)km
+                                              distance:(int)distance
                                           activityTime:(int)activityTime;
 
 - (void)activityTrackerGetDetailActivityDataDayResponseIndex:(int)index
                                                         date:(NSDate *)date
                                                        steps:(int)steps
                                                 aerobicSteps:(int)aerobicSteps
-                                                         cal:(int)cal
-                                                          km:(int)km;
+                                                    calories:(int)calories
+                                                    distance:(int)distance;
+
 - (void)activityTrackerGetDetailActivityDataSleepResponseIndex:(int)index
-                                                          date:(NSDate *)date
-                                                  sleepQuality:(int)sleepQuality;
+                                                  sleepQualities:(NSArray *)sleepQualities;
+
 - (void)activityTrackerGetDetailActivityDataResponseWithoutData;
 
 - (void)activityTrackerDeleteActivityDataResponse;
 
 - (void)activityTrackerRealTimeModeResponseSteps:(int)steps
                                     aerobicSteps:(int)aerobicSteps
-                                             cal:(int)cal
-                                              km:(int)km
+                                        calories:(int)calories
+                                        distance:(int)distance
                                     activityTime:(int)activityTime;
 - (void)activityTrackerStopRealTimeMeterModeResponse;
+- (void)activityTrackerSwitchSleepMonitorModeResponse;
 
-- (void)activityTrackerGetCurrentActivityInformationResponse;
+- (void)activityTrackerStartECGModeResponse;
+- (void)activityTrackerECGModeResponseDate:(NSDate *)date
+                                      data:(NSArray *)data;
+- (void)activityTrackerStopECGModeResponse;
+- (void)activityTrackerDeleteECGDataResponse;
+- (void)activityTrackerGetECGDataResponseDate:(NSDate *)date
+                                    heartRate:(int)heartRate;
 
-- (void)activityTrackerQueryDataStorageResponse;
+- (void)activityTrackerGetCurrentActivityInformationResponseSteps:(int)steps
+                                                     aerobicSteps:(int)aerobicSteps
+                                                         calories:(int)calories
+                                                         distance:(int)distance
+                                                     activityTime:(int)activityTime;
+
+- (void)activityTrackerQueryDataStorageResponse:(NSArray *)dataStorage;
 
 - (void)activityTrackerSetTargetStepsResponse;
 - (void)activityTrackerGetTargetStepsResponse:(int)steps;
-- (void)activityTrackerGetActivityGoalAchievedRateResponse;
+- (void)activityTrackerGetActivityGoalAchievedRateResponseDay:(Byte)dayIndex
+                                                         date:(NSDate *)date
+                                             goalAchievedRate:(int)goalAchievedRate
+                                                activitySpeed:(int)activitySpeed
+                                                           ex:(int)ex
+                                          goalFinishedPercent:(int)goalFinishedPercent;
+
+- (void)activityTrackerResetToFactorySettingsResponse;
+- (void)activityTrackerResetMCUResponse;
+- (void)activityTrackerFirmwareUpdateResponse;
 
 @end
 ```

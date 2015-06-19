@@ -19,12 +19,16 @@
 {
     [super viewWillAppear:animated];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(activityTrackerManagerUpdateNotification:)
-                                                 name:@"ActivityTrackerManagerUpdateNotification"
+                                             selector:@selector(activityTrackerManagerStateUpdateNotification:)
+                                                 name:@"ActivityTrackerManagerStateUpdatedNotification"
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(activityTrackerManagerConnectedNotification:)
-                                                 name:@"ActivityTrackerManagerConnectedNotification"
+                                             selector:@selector(activityTrackerManagerFoundNotification:)
+                                                 name:@"ActivityTrackerFoundNotification"
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(activityTrackerConnectedNotification:)
+                                                 name:@"ActivityTrackerConnectedNotification"
                                                object:nil];
 }
 
@@ -34,12 +38,19 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)activityTrackerManagerUpdateNotification:(NSDictionary *)postInfo
+- (void)activityTrackerManagerStateUpdateNotification:(NSDictionary *)postInfo
+{
+    if (self.activityTrackerManager.centralManager.state == CBCentralManagerStatePoweredOn) {
+        [self.activityTrackerManager findPeripherals:10.0];
+    }
+}
+
+- (void)activityTrackerManagerFoundNotification:(NSDictionary *)postInfo
 {
     [self.tableView reloadData];
 }
 
-- (void)activityTrackerManagerConnectedNotification:(NSDictionary *)postInfo
+- (void)activityTrackerConnectedNotification:(NSDictionary *)postInfo
 {
     [self.tableView reloadData];
 
@@ -60,9 +71,10 @@
     UITableViewCell *celda = [tableView dequeueReusableCellWithIdentifier:@"Dispositivo" forIndexPath:indexPath];
 
     CBPeripheral *peripheral = [self.activityTrackerManager peripheralAtIndex:indexPath.row];
+    NSString *deviceId = [self.activityTrackerManager deviceIdAtIndex:indexPath.row];
 
     celda.textLabel.text = peripheral.name;
-    celda.detailTextLabel.text = peripheral.identifier.UUIDString;
+    celda.detailTextLabel.text = deviceId;
     if ([peripheral.name isEqualToString:@"Activity Tracker"]) {
         celda.imageView.image = [UIImage imageNamed:@"fitpro"];
     } else {
@@ -82,10 +94,12 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     CBPeripheral *peripheral = [self.activityTrackerManager peripheralAtIndex:indexPath.row];
+    NSString *deviceId = [self.activityTrackerManager deviceIdAtIndex:indexPath.row];
+    
     if (peripheral.state == CBPeripheralStateConnected) {
         [self performSegueWithIdentifier:@"activityTrackerConnected" sender:self];
     } else if (peripheral.state == CBPeripheralStateDisconnected) {
-        [self.activityTrackerManager connectTo:peripheral];
+        [self.activityTrackerManager connectTo:deviceId delegate:nil];
     }
 }
 
