@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/getTimeTV"
-            android:textSize="15dp"
+            android:textSize="15sp"
             android:textColor="#dddddd" />
     </LinearLayout>
 

@@ -24,7 +24,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Steps :"
                 android:id="@+id/textView3"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
 
             <TextView
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/stepsTV"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
         </LinearLayout>
 
@@ -45,9 +45,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="AerobicSteps :"
+                android:text="Aerobic Steps :"
                 android:id="@+id/textView8"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
 
             <TextView
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/aStepsTV"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
         </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Calories :"
                 android:id="@+id/textView4"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
 
             <TextView
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/caloriesTV"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
         </LinearLayout>
 
@@ -91,9 +91,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="KM :"
+                android:text="Distance :"
                 android:id="@+id/textView6"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
 
             <TextView
@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/KMTV"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
         </LinearLayout>
 
@@ -116,7 +116,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Activity Time :"
                 android:id="@+id/textView10"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
 
             <TextView
@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/ATTV"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="#dddddd" />
         </LinearLayout>
 

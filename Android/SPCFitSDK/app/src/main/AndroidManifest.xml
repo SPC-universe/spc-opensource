@@ -16,7 +16,7 @@ package="com.spc.spcfitsdk" >
     android:theme="@style/AppTheme" >
 
     <activity
-        android:name=".activities.MainActivity"
+        android:name=".controller.MainActivity"
         android:label="@string/app_name"
         android:screenOrientation="portrait" >
         <intent-filter>
@@ -26,16 +26,11 @@ package="com.spc.spcfitsdk" >
         </intent-filter>
     </activity>
     <activity
-        android:name=".activities.ShowDeviceActivity"
+        android:name=".controller.ShowDeviceActivity"
         android:label="@string/title_activity_show_device"
         android:screenOrientation="portrait" >
     </activity>
 
-    <service
-        android:name=".activityTracker.ActivityTracker"
-        android:enabled="true"
-        android:exported="true" >
-    </service>
 </application>
 
 </manifest>

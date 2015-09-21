@@ -1,4 +1,4 @@
-package com.spc.spcfitsdk.fragments;
+package com.spc.spcfitsdk.controller;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -16,8 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.spc.spcfitsdk.R;
-import com.spc.spcfitsdk.activities.ShowDeviceActivity;
-import com.spc.spcfitsdk.activityTracker.ActivityTracker;
+import com.spc.spcfitsdk.model.ExampleManager;
+import com.spc.spcfitsdk.model.SPCFitSDK.ActivityTracker;
 
 public class GetSetGoalFragment extends Fragment {
 
@@ -25,57 +25,41 @@ public class GetSetGoalFragment extends Fragment {
 
     private static final int MIN_GOAL = 5000;
 
-    private View view;
-
     private TextView getGoalTV;
-    private Button getGoalB;
-
-    private SeekBar goalSB;
     private TextView setGoalTV;
-    private Button setGoalB;
-
-    public static GetSetGoalFragment newInstance() {
-        return new GetSetGoalFragment();
-    }
-
-    public GetSetGoalFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view=inflater.inflate(R.layout.fragment_get_set_goal, container, false);
+        View view = inflater.inflate(R.layout.fragment_get_set_goal, container, false);
 
-        getGoalTV=(TextView)view.findViewById(R.id.getGoalTV);
+        getGoalTV = (TextView) view.findViewById(R.id.getGoalTV);
 
-        getGoalB=(Button)view.findViewById(R.id.getGoalB);
+        Button getGoalB = (Button) view.findViewById(R.id.getGoalB);
         getGoalB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (((ShowDeviceActivity)getActivity()).connected) {
-                    ((ShowDeviceActivity)getActivity()).activityTrackerManager.getTargetSteps();
+                if (((ShowDeviceActivity) getActivity()).connected) {
+                    ((ShowDeviceActivity) getActivity()).getExampleManager().getActivityTracker().getTargetSteps(ActivityTracker.LOW_PRIORITY);
                 } else {
-                    Toast.makeText(getActivity(),"Disconnected from device",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Disconnected from the device", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        setGoalTV=(TextView)view.findViewById(R.id.setGoalTV);
+        setGoalTV = (TextView) view.findViewById(R.id.setGoalTV);
         setGoalTV.setText(Integer.toString(MIN_GOAL));
 
-        goalSB=(SeekBar)view.findViewById(R.id.goalSB);
+        SeekBar goalSB = (SeekBar) view.findViewById(R.id.goalSB);
         goalSB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChanged = MIN_GOAL;
 
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressChanged = progress + MIN_GOAL;
                 setGoalTV.setText(Integer.toString(progressChanged));
             }
@@ -89,14 +73,14 @@ public class GetSetGoalFragment extends Fragment {
             }
         });
 
-        setGoalB=(Button)view.findViewById(R.id.setGoalB);
+        Button setGoalB = (Button) view.findViewById(R.id.setGoalB);
         setGoalB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (((ShowDeviceActivity)getActivity()).connected) {
-                    ((ShowDeviceActivity)getActivity()).activityTrackerManager.setTargetSteps(Integer.parseInt(setGoalTV.getText().toString()));
+                if (((ShowDeviceActivity) getActivity()).connected) {
+                    ((ShowDeviceActivity) getActivity()).getExampleManager().getActivityTracker().setTargetSteps(Integer.parseInt(setGoalTV.getText().toString()), ActivityTracker.LOW_PRIORITY);
                 } else {
-                    Toast.makeText(getActivity(),"Disconnected from device",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Disconnected from the device", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -114,7 +98,6 @@ public class GetSetGoalFragment extends Fragment {
         super.onDetach();
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -129,20 +112,23 @@ public class GetSetGoalFragment extends Fragment {
 
     private static IntentFilter receiverIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ActivityTracker.BLE_GET_TARGET_STEPS_RESPONSE);
+        intentFilter.addAction(ExampleManager.GET_TARGET_STEPS_RESPONSE);
+        intentFilter.addAction(ExampleManager.SET_TARGET_STEPS_RESPONSE);
         return intentFilter;
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-//            Log.d(CLASS, action);
-            if (ActivityTracker.BLE_GET_TARGET_STEPS_RESPONSE.equals(action)) {
-                Bundle bundle = intent.getExtras();
-                getGoalTV.setText(Integer.toString(bundle.getInt("steps")));
+            switch (intent.getAction()) {
+                case ExampleManager.GET_TARGET_STEPS_RESPONSE:
+                    Bundle bundle = intent.getExtras();
+                    getGoalTV.setText(Integer.toString(bundle.getInt("goal")));
+                    break;
+                case ExampleManager.SET_TARGET_STEPS_RESPONSE:
+                    Toast.makeText(GetSetGoalFragment.this.getActivity(), "Goal setted", Toast.LENGTH_LONG).show();
+                    break;
             }
         }
     };
-
 }

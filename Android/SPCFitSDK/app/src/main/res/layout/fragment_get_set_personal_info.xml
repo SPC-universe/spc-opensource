@@ -30,7 +30,7 @@
                 android:text="Sex :"
                 android:id="@+id/textView7"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/sexTV"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -55,7 +55,7 @@
                 android:text="Age :"
                 android:id="@+id/textView5"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/ageTV"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -80,7 +80,7 @@
                 android:text="Height :"
                 android:id="@+id/textView12"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -88,7 +88,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/heightTV"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -105,7 +105,7 @@
                 android:text="Weight :"
                 android:id="@+id/textView14"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -113,7 +113,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/weightTV"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -130,7 +130,7 @@
                 android:text="Stride :"
                 android:id="@+id/textView16"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/strideTV"
                 android:textColor="#ffffff"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <Button
@@ -162,7 +162,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -171,7 +172,7 @@
                 android:text="Sex :"
                 android:id="@+id/textView9"
                 android:textColor="#000000"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <Switch
                 android:layout_width="wrap_content"
@@ -187,7 +188,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -196,10 +198,10 @@
                 android:text="Age :"
                 android:id="@+id/textView13"
                 android:textColor="#000000"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/ageET"
                 android:layout_weight="1"
@@ -213,7 +215,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -222,10 +225,10 @@
                 android:text="Height :"
                 android:id="@+id/textView17"
                 android:textColor="#000000"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/heightET"
                 android:layout_weight="1"
@@ -239,7 +242,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -248,10 +252,10 @@
                 android:text="Weight :"
                 android:id="@+id/textView19"
                 android:textColor="#000000"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/weightET"
                 android:layout_weight="1"
@@ -265,7 +269,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -274,10 +279,10 @@
                 android:text="Stride :"
                 android:id="@+id/textView21"
                 android:textColor="#000000"
-                android:textSize="15dp" />
+                android:textSize="15sp" />
 
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/strideET"
                 android:layout_weight="1"

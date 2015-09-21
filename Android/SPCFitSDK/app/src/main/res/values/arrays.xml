@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="patterns">
+        <item>@string/pattern_9602N</item>
+        <item>@string/pattern_9603N</item>
+        <item>@string/pattern_9604N</item>
+        <item>@string/pattern_test</item>
+    </string-array>
+</resources>

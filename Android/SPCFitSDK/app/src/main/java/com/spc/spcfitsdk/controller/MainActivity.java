@@ -1,14 +1,12 @@
-package com.spc.spcfitsdk.activities;
+package com.spc.spcfitsdk.controller;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,55 +20,54 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.spc.spcfitsdk.R;
-import com.spc.spcfitsdk.activityTracker.ActivityTracker;
-import com.spc.spcfitsdk.activityTracker.ActivityTrackerManager;
+import com.spc.spcfitsdk.model.ExampleManager;
+import com.spc.spcfitsdk.model.SPCFitSDK.ActivityTrackerManager;
 
 import java.util.ArrayList;
-
 
 public class MainActivity extends Activity {
 
     public static final String CLASS = "MainActivity";
 
-    private Button searchButton;
+    public static final int REQUEST_BLUETOOTH_RESPONSE = 3000;
+
     private ListView devicesLV;
     private DeviceListAdapter deviceListAdapter;
 
-    private ActivityTrackerManager activityTrackerManager;
-
+    private ExampleManager exampleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        activityTrackerManager = ActivityTrackerManager.getInstance(getApplicationContext());
+        exampleManager = ExampleManager.getInstance(getApplicationContext());
 
-        searchButton=(Button)findViewById(R.id.searchButton);
+        Button searchButton = (Button) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deviceListAdapter.clear();
-                activityTrackerManager.findDevices();
+                if (!exampleManager.getActivityTrackerManager().foundDevices()) {
+                    sendBroadcast(new Intent(ActivityTrackerManager.REQUEST_BLUETOOTH));
+                }
             }
         });
-
 
         devicesLV=(ListView)findViewById(R.id.dispositivesLV);
 
         devicesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final BluetoothDevice device = deviceListAdapter.getDevice(position);
+                final ArrayList <String> device = deviceListAdapter.getDevice(position);
                 if (device != null){
-                    activityTrackerManager.stopFindingDevices();
                     final Intent intent = new Intent(MainActivity.this, ShowDeviceActivity.class);
-                    intent.putExtra("device", device);
+                    intent.putExtra("address", device.get(0));
+                    intent.putExtra("serialNumber", device.get(1));
                     startActivity(intent);
                 }
             }
         });
-
 
     }
 
@@ -117,48 +114,11 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 0 && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
-        }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private static IntentFilter receiverIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ActivityTracker.BLE_NEW_DEVICE);
-        intentFilter.addAction(ActivityTracker.BLE_CHECK_BLUETOOTH);
-        intentFilter.addAction(ActivityTracker.BLE_NO_BLUETOOTH);
-        intentFilter.addAction(ActivityTracker.BLE_NO_BLE);
-        return intentFilter;
-    }
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-//            Log.d(CLASS, action);
-            if (ActivityTracker.BLE_NEW_DEVICE.equals(action)) {
-                deviceListAdapter.addDevice((BluetoothDevice)intent.getParcelableExtra("device"));
-                deviceListAdapter.notifyDataSetChanged();
-            } else {
-                if (ActivityTracker.BLE_CHECK_BLUETOOTH.equals(action)) {
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(enableBtIntent, 0);
-                } else {
-                    if (ActivityTracker.BLE_NO_BLUETOOTH.equals(action)) {
-                        Toast.makeText(MainActivity.this, "There is no Bluetooth", Toast.LENGTH_SHORT).show();
-                    } else {
-                        if (ActivityTracker.BLE_NO_BLE.equals(action)) {
-                            Toast.makeText(MainActivity.this, "There is no Bluetooth Low Energy", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            }
+        if ((requestCode == REQUEST_BLUETOOTH_RESPONSE && resultCode == Activity.RESULT_CANCELED)) {
+            exampleManager.getActivityTrackerManager().foundDevices();
         }
-    };
-
-
+    }
 
     static class ViewHolder {
         TextView deviceName;
@@ -166,7 +126,7 @@ public class MainActivity extends Activity {
     }
 
     private class DeviceListAdapter extends BaseAdapter {
-        private ArrayList<BluetoothDevice> devices;
+        private ArrayList<ArrayList <String>> devices;
         private LayoutInflater inflater;
 
         public DeviceListAdapter() {
@@ -175,13 +135,16 @@ public class MainActivity extends Activity {
             inflater = MainActivity.this.getLayoutInflater();
         }
 
-        public void addDevice(BluetoothDevice device) {
+        public void addDevice(String address, String serialNumber) {
+            ArrayList <String> device = new ArrayList<>();
+            device.add(address);
+            device.add(serialNumber);
             if(!devices.contains(device)) {
                 devices.add(device);
             }
         }
 
-        public BluetoothDevice getDevice(int position) {
+        public ArrayList<String> getDevice(int position) {
             return devices.get(position);
         }
 
@@ -207,7 +170,6 @@ public class MainActivity extends Activity {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             ViewHolder viewHolder;
-            // General ListView optimization code.
             if (view == null) {
                 view = inflater.inflate(R.layout.listitem_device, null);
                 viewHolder = new ViewHolder();
@@ -218,16 +180,52 @@ public class MainActivity extends Activity {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            BluetoothDevice device = devices.get(i);
-            final String deviceName = device.getName();
-            if (deviceName != null && deviceName.length() > 0)
+            ArrayList<String> device = devices.get(i);
+            final String deviceName = device.get(0);
+            if (deviceName != null && deviceName.length() > 0) {
                 viewHolder.deviceName.setText(deviceName);
-            else
+            } else {
                 viewHolder.deviceName.setText(R.string.unknown_device);
-            viewHolder.deviceAddress.setText(device.getAddress());
+            }
+            viewHolder.deviceAddress.setText(device.get(1));
 
             return view;
         }
     }
+
+    private static IntentFilter receiverIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ActivityTrackerManager.NEW_DEVICE_FOUND);
+        intentFilter.addAction(ActivityTrackerManager.REQUEST_BLUETOOTH);
+        intentFilter.addAction(ActivityTrackerManager.NO_BLUETOOTH);
+        intentFilter.addAction(ActivityTrackerManager.NO_BLE);
+        return intentFilter;
+    }
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            final String action = intent.getAction();
+            switch (action) {
+                case ActivityTrackerManager.NEW_DEVICE_FOUND:
+                    String address = intent.getExtras().getString("address");
+                    String serialNumber = intent.getExtras().getString("serialNumber");
+                    deviceListAdapter.addDevice(address, serialNumber);
+                    deviceListAdapter.notifyDataSetChanged();
+                    break;
+                case ActivityTrackerManager.REQUEST_BLUETOOTH:
+                    startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_BLUETOOTH_RESPONSE);
+                    break;
+                case ActivityTrackerManager.NO_BLUETOOTH:
+                    Toast.makeText(MainActivity.this, "There is no Bluetooth", Toast.LENGTH_SHORT).show();
+                    break;
+                case ActivityTrackerManager.NO_BLE:
+                    Toast.makeText(MainActivity.this, "There is no Bluetooth Low Energy", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
 }

@@ -9,5 +9,9 @@
     <string name="title_activity_show_device">ShowDeviceActivity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-</resources>
+    <string name="pattern_9602N">"A0+[0-9]{2}+1000+[0-9]{4}+8380671"</string>
+    <string name="pattern_9603N">"A1+[0-9]{2}+1000+[0-9]{4}+8380671"</string>
+    <string name="pattern_9604N">"A2+[0-9]{2}+1000+[0-9]{4}+8380671"</string>
+    <string name="pattern_test">"[A-Z 0-9]{12}+8380671"</string>
 
+</resources>

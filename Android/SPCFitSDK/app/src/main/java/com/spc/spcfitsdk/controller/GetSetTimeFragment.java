@@ -1,4 +1,4 @@
-package com.spc.spcfitsdk.fragments;
+package com.spc.spcfitsdk.controller;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -15,66 +15,50 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.spc.spcfitsdk.R;
-import com.spc.spcfitsdk.activities.ShowDeviceActivity;
-import com.spc.spcfitsdk.activityTracker.ActivityTracker;
+import com.spc.spcfitsdk.model.ExampleManager;
+import com.spc.spcfitsdk.model.SPCFitSDK.ActivityTracker;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class GetSetTimeFragment extends Fragment {
 
     public static final String CLASS = "GetSetTimeFragment";
 
-    private View view;
-
     private TextView getTimeTV;
-    private Button getTimeB;
-
-    private Button setTimeB;
-
-    public static GetSetTimeFragment newInstance() {
-        return new GetSetTimeFragment();
-    }
-
-    public GetSetTimeFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_get_set_time, container, false);
 
-        view=inflater.inflate(R.layout.fragment_get_set_time, container, false);
+        getTimeTV = (TextView) view.findViewById(R.id.getTimeTV);
 
-        getTimeTV=(TextView)view.findViewById(R.id.getTimeTV);
-
-        setTimeB=(Button)view.findViewById(R.id.setTimeB);
+        Button setTimeB = (Button) view.findViewById(R.id.setTimeB);
         setTimeB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (((ShowDeviceActivity)getActivity()).connected) {
-                    ((ShowDeviceActivity)getActivity()).activityTrackerManager.setTime(Calendar.getInstance());
+                if (((ShowDeviceActivity) getActivity()).connected) {
+                    ((ShowDeviceActivity) getActivity()).getExampleManager().getActivityTracker().setTime(Calendar.getInstance(), ActivityTracker.LOW_PRIORITY);
                 } else {
-                    Toast.makeText(getActivity(), "Disconnected from device", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Disconnected from the device", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        getTimeB=(Button)view.findViewById(R.id.getTimeB);
+
+        Button getTimeB = (Button) view.findViewById(R.id.getTimeB);
         getTimeB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (((ShowDeviceActivity)getActivity()).connected) {
-                    ((ShowDeviceActivity)getActivity()).activityTrackerManager.getTime();
+                if (((ShowDeviceActivity) getActivity()).connected) {
+                    ((ShowDeviceActivity) getActivity()).getExampleManager().getActivityTracker().getTime(ActivityTracker.LOW_PRIORITY);
                 } else {
-                    Toast.makeText(getActivity(),"Disconnected from device",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Disconnected from the device", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -82,17 +66,14 @@ public class GetSetTimeFragment extends Fragment {
         return view;
     }
 
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-
     }
 
     @Override
@@ -109,20 +90,24 @@ public class GetSetTimeFragment extends Fragment {
 
     private static IntentFilter receiverIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ActivityTracker.BLE_GET_TIME_RESPONSE);
+        intentFilter.addAction(ExampleManager.GET_TIME_RESPONSE);
+        intentFilter.addAction(ExampleManager.SET_TIME_RESPONSE);
         return intentFilter;
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
-//        Log.d(CLASS, action);
-        if (ActivityTracker.BLE_GET_TIME_RESPONSE.equals(action)) {
-            Calendar calendar=(Calendar)intent.getSerializableExtra("calendar");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
-            getTimeTV.setText(sdf.format(calendar.getTime()));
-        }
+            switch (intent.getAction()) {
+                case ExampleManager.GET_TIME_RESPONSE:
+                    Calendar calendar = (Calendar) intent.getSerializableExtra("calendar");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss", Locale.getDefault());
+                    getTimeTV.setText(sdf.format(calendar.getTime()));
+                    break;
+                case ExampleManager.SET_TIME_RESPONSE:
+                    Toast.makeText(GetSetTimeFragment.this.getActivity(), "Time setted", Toast.LENGTH_LONG).show();
+                    break;
+            }
         }
     };
 
