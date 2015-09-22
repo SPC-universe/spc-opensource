@@ -36,9 +36,47 @@
 
 - (void)activityTrackerReady:(ActivityTracker *)activityTracker
 {
-    NSLog(@"activityTrackerReady: %@", activityTracker);
+    NSLog(@"activityTrackerReady");
+    
+    self.activityTracker = activityTracker;
+    
+    // Antes de trabajar con la pulsera hay que enviarle una clave de 6 caracteres
+    // La pulsera nos responde con el método activityTrackerSafeBondingSendPasswordResponse
+    [self.activityTracker safeBondingSendPassword:@"123456"];
+}
 
-    [self.activityTracker getTime];
+- (void)activityTrackerSafeBondingSavePasswordResponse
+{
+    NSLog(@"safeBondingSavePasswordResponse");
+    
+    // Se ha guardado la clave en el dispositivo
+    //[self.activityTracker safeBondingStatus];
+}
+
+- (void)activityTrackerSafeBondingStatusResponse:(BOOL)error
+{
+    NSLog(@"safeBondingStatusResponse error? %@", error ? @YES : @NO);
+    
+    if (!error) {
+        // Si no hay error podemos continuar con las llamadas
+        [self.activityTracker getTime];
+    } else {
+        // Si hay error hay que guardar una clave nueva
+        [self.activityTracker safeBondingSendPassword:@"123456"];
+    }
+}
+
+- (void)activityTrackerSafeBondingSendPasswordResponse:(BOOL)error
+{
+    NSLog(@"safeBondingSendPasswordResponse error? %@", error ? @YES : @NO);
+    
+    if (!error) {
+        // Si no hay error podemos continuar con las llamadas
+        [self.activityTracker getTime];
+    } else {
+        // Si hay error hay que guardar una clave nueva
+        [self.activityTracker safeBondingSavePassword:@"123456"];
+    }
 }
 
 - (void)activityTrackerGetTimeResponse:(NSDate *)date
