@@ -22,6 +22,18 @@
     [self.activityTracker discoverServices];
 }
 
+- (IBAction)getTotal:(id)sender {
+    [self.activityTracker getTotalActivityData:0];
+}
+
+- (IBAction)getCurrent:(id)sender {
+    [self.activityTracker getCurrentActivityInformation];
+}
+
+- (IBAction)startRealTime:(id)sender {
+    [self.activityTracker startRealTimeMeterMode];
+}
+
 #pragma mark ActivityTrackerDelegate
 
 - (void)activityTrackerReady:(ActivityTracker *)activityTracker
@@ -29,7 +41,19 @@
     NSLog(@"activityTrackerReady: %@", activityTracker);
 
     [self.activityTracker getTotalActivityData:0];
-    //[self.activityTracker getCurrentActivityInformation];
+}
+
+- (void)activityTrackerGetCurrentActivityInformationResponseSteps:(int)steps
+                                                     aerobicSteps:(int)aerobicSteps
+                                                         calories:(int)calories
+                                                         distance:(int)distance
+                                                     activityTime:(int)activityTime;
+{
+    NSLog(@"activityTrackerGetCurrentActivityInformationResponse");
+    
+    self.stepsField.text = [NSString stringWithFormat:@"%i", steps];
+    self.caloriesField.text = [NSString stringWithFormat:@"%0.2f", calories / 100.0];
+    self.kmField.text = [NSString stringWithFormat:@"%0.2f", distance / 100.0];
 }
 
 -(void)activityTrackerGetTotalActivityDataResponseDay:(int)day
@@ -65,11 +89,6 @@
     self.stepsField.text = [NSString stringWithFormat:@"%i", steps];
     self.caloriesField.text = [NSString stringWithFormat:@"%0.2f", calories / 100.0];
     self.kmField.text = [NSString stringWithFormat:@"%0.2f", distance / 100.0];
-}
-
-- (void)activityTrackerGetCurrentActivityInformationResponse
-{
-    NSLog(@"activityTrackerGetCurrentActivityInformationResponse");
 }
 
 @end
