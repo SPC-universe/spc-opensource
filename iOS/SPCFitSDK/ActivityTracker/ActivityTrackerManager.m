@@ -122,8 +122,8 @@
     }
 
     if (self.centralManager.state == CBCentralManagerStatePoweredOn) {
-        [self.centralManager retrieveConnectedPeripherals];
-        
+        [self.centralManager retrieveConnectedPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FFF0"]]];
+
         self.findPeripheralsTimeoutTimer =
         [NSTimer scheduledTimerWithTimeInterval:timeInterval
                                          target:self
