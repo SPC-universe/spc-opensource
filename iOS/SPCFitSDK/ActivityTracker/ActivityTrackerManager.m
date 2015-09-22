@@ -7,7 +7,6 @@
 
 @end
 
-
 @implementation ActivityTrackerManager
 
 #pragma mark Lifecycle
@@ -122,7 +121,17 @@
     }
 
     if (self.centralManager.state == CBCentralManagerStatePoweredOn) {
-        [self.centralManager retrieveConnectedPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FFF0"]]];
+        NSArray *devices = [self.centralManager retrieveConnectedPeripheralsWithServices:@[[CBUUID UUIDWithString:@"FFF0"]]];
+
+        for (CBPeripheral *peripheral in devices) {
+            NSLog(@"centralManager:didRetrieveConnectedPeripherals: %@ %@", peripheral.name, peripheral.identifier.UUIDString);
+            
+            NSString *deviceId = peripheral.identifier.UUIDString;
+            if (deviceId) {
+                self.peripherals[deviceId] = peripheral;
+                [self postActivityTrackerFoundNotification:deviceId];
+            }
+        }
 
         self.findPeripheralsTimeoutTimer =
         [NSTimer scheduledTimerWithTimeInterval:timeInterval
