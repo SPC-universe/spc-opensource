@@ -1,73 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-
-@class ActivityTracker;
-
-@protocol ActivityTrackerDelegate <NSObject>
-
-@optional
-- (void)activityTrackerReady:(ActivityTracker *)activityTracker;
-
-- (void)activityTrackerSetTimeResponse;
-- (void)activityTrackerGetTimeResponse:(NSDate *)date;
-
-- (void)activityTrackerSetPersonalInformationResponse;
-- (void)activityTrackerGetPersonalInformationResponseMan:(BOOL)man
-                                                     age:(Byte)age
-                                                  height:(Byte)height
-                                                  weight:(Byte)weight
-                                              stepLength:(Byte)stepLength
-                                                deviceId:(NSString *)deviceId;
-
-- (void)activityTrackerGetTotalActivityDataResponseDay:(int)day
-                                                  date:(NSDate *)date
-                                                 steps:(int)steps
-                                          aerobicSteps:(int)aerobicSteps
-                                              calories:(int)calories;
-- (void)activityTrackerGetTotalActivityDataResponseDay:(int)day
-                                                  date:(NSDate *)date
-                                              distance:(int)distance
-                                          activityTime:(int)activityTime;
-
-- (void)activityTrackerGetDetailActivityDataResponseIndex:(int)index
-                                                     date:(NSDate *)date
-                                                    steps:(int)steps
-                                             aerobicSteps:(int)aerobicSteps
-                                                 calories:(int)calories
-                                                 distance:(int)distance;
-
-- (void)activityTrackerGetDetailActivityDataSleepResponseIndex:(int)index
-                                                sleepQualities:(NSArray *)sleepQualities;
-
-- (void)activityTrackerGetDetailActivityDataResponseWithoutData;
-
-- (void)activityTrackerDeleteActivityDataResponse;
-
-- (void)activityTrackerRealTimeModeResponseSteps:(int)steps
-                                    aerobicSteps:(int)aerobicSteps
-                                        calories:(int)calories
-                                        distance:(int)distance
-                                    activityTime:(int)activityTime;
-- (void)activityTrackerStopRealTimeMeterModeResponse;
-
-- (void)activityTrackerGetCurrentActivityInformationResponseSteps:(int)steps
-                                                     aerobicSteps:(int)aerobicSteps
-                                                         calories:(int)calories
-                                                         distance:(int)distance
-                                                     activityTime:(int)activityTime;
-
-- (void)activityTrackerQueryDataStorageResponse:(NSArray *)dataStorage;
-
-- (void)activityTrackerSetTargetStepsResponse;
-- (void)activityTrackerGetTargetStepsResponse:(int)steps;
-- (void)activityTrackerGetActivityGoalAchievedRateResponseDay:(Byte)dayIndex
-                                                         date:(NSDate *)date
-                                             goalAchievedRate:(int)goalAchievedRate
-                                                activitySpeed:(int)activitySpeed
-                                                           ex:(int)ex
-                                          goalFinishedPercent:(int)goalFinishedPercent;
-
-@end
+#import "ActivityTrackerDelegate.h"
+#import "SleepQualityDetailData.h"
 
 @interface ActivityTracker : NSObject
 
@@ -80,6 +14,12 @@
 - (void)discoverServices;
 - (BOOL)isReady;
 - (void)sendNextCmd;
+
+- (void)setDeviceId:(NSString *)deviceId;
+
+- (void)safeBondingSavePassword:(NSString *)password;
+- (void)safeBondingSendPassword:(NSString *)password;
+- (void)safeBondingStatus;
 
 - (void)setTime:(NSDate *)date;
 - (void)getTime;
@@ -99,5 +39,19 @@
 - (void)setTargetSteps:(int)steps;
 - (void)getTargetSteps;
 - (void)getActivityGoalAchievedRate:(Byte)day;
+
+- (void)resetToFactorySettings;
+- (void)resetMCU;
+
+- (void)getFirmwareVersion;
+- (void)firmwareUpdate;
+
+- (void)getSleepMonitorMode;
+- (void)switchSleepMonitorMode;
+
+- (void)startECGMode;
+- (void)stopECGMode;
+- (void)deleteECGData;
+- (void)getECGData:(Byte)index;
 
 @end

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
         id="com.spc.spcfitsdk.plugin"
-        version="0.0.5">
+        version="0.0.6">
 
     <name>SPCFit</name>
 
@@ -41,9 +41,14 @@
         <header-file src="src/ios/SPCFit.h" target-dir="SPCFitPlugin"/>
         <source-file src="src/ios/SPCFit.m" target-dir="SPCFitPlugin"/>
 
-        <source-file src="src/ios/libSPCFitSDK.a" target-dir="SPCFitPlugin" framework="true" />
-        <header-file src="src/ios/ActivityTrackerManager.h" target-dir="SPCFitPlugin"/>
         <header-file src="src/ios/ActivityTracker.h" target-dir="SPCFitPlugin"/>
+        <header-file src="src/ios/ActivityTrackerDelegate.h" target-dir="SPCFitPlugin"/>
+        <header-file src="src/ios/ActivityTrackerManager.h" target-dir="SPCFitPlugin"/>
+        <header-file src="src/ios/SleepQualityDetailData.h" target-dir="SPCFitPlugin"/>
+        <source-file src="src/ios/libSPCFitSDK.a" target-dir="SPCFitPlugin" framework="true" />
+        <!--<source-file src="src/ios/ActivityTrackerManager.m" target-dir="SPCFitPlugin"/>
+        <source-file src="src/ios/ActivityTracker.m" target-dir="SPCFitPlugin"/>
+        <source-file src="src/ios/SleepQualityDetailData.m" target-dir="SPCFitPlugin"/>-->
     </platform>
 
 </plugin>
