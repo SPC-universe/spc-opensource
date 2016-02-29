@@ -306,20 +306,19 @@ public class SPCFit extends CordovaPlugin {
                         }
 
                         JSONArray result = new JSONArray();
-                        try {
 
+                        try {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                             SortedSet<Calendar> keys = new TreeSet<Calendar>(hashMap.keySet());
                             for (Calendar key : keys) {
                                 JSONObject object = new JSONObject();
-                                object.put("date", key);
+                                object.put("date", sdf.format(key.getTime()));
                                 object.put("quality", hashMap.get(key));
                                 sleepQualityDetail.put(object);
                             }
-
                         }
                         catch (JSONException e) {
                         }
-                        this.sleepQualityDetail = result;
 
                         if (index == 95) {
                             try{
