@@ -69,7 +69,11 @@ public class SPCFit extends CordovaPlugin {
 
                         activityTracker = tracker;
                         SPCFit.this.connected = true;
-                        sendBonding();
+                        if (activityTracker.getModel() == ActivityTracker.SPC_FIT_PRO) {
+                            ((CallbackContext) callbacks.get("connect")).success();
+                        } else {
+                            sendBonding();
+                        }
 
                     }
 
@@ -649,6 +653,7 @@ public class SPCFit extends CordovaPlugin {
         showCountDown();
         activityTracker.safeBondingSavePassword(bondingPassword, ActivityTracker.HIGH_PRIORITY);
     }
+
 
     AlertDialog alertDialog;
 
