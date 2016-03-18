@@ -69,7 +69,11 @@ public class SPCFit extends CordovaPlugin {
 
                         activityTracker = tracker;
                         SPCFit.this.connected = true;
-                        sendBonding();
+                        if (activityTracker.getModel() == ActivityTracker.SPC_FIT_PRO) {
+                            ((CallbackContext) callbacks.get("connect")).success();
+                        } else {
+                            sendBonding();
+                        }
 
                     }
 
@@ -306,20 +310,19 @@ public class SPCFit extends CordovaPlugin {
                         }
 
                         JSONArray result = new JSONArray();
-                        try {
 
+                        try {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                             SortedSet<Calendar> keys = new TreeSet<Calendar>(hashMap.keySet());
                             for (Calendar key : keys) {
                                 JSONObject object = new JSONObject();
-                                object.put("date", key);
+                                object.put("date", sdf.format(key.getTime()));
                                 object.put("quality", hashMap.get(key));
                                 sleepQualityDetail.put(object);
                             }
-
                         }
                         catch (JSONException e) {
                         }
-                        this.sleepQualityDetail = result;
 
                         if (index == 95) {
                             try{
@@ -650,6 +653,7 @@ public class SPCFit extends CordovaPlugin {
         showCountDown();
         activityTracker.safeBondingSavePassword(bondingPassword, ActivityTracker.HIGH_PRIORITY);
     }
+
 
     AlertDialog alertDialog;
 
