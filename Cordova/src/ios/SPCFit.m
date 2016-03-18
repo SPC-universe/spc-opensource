@@ -636,7 +636,7 @@
     }
 }
 
-- (void)activityTrackerGetDetailActivityDataResponseIndex:(int)index
+- (void)activityTrackerGetDetailActivityDataDayResponseIndex:(int)index
                                                      date:(NSDate *)date
                                                     steps:(int)steps
                                              aerobicSteps:(int)aerobicSteps
@@ -675,9 +675,9 @@
     int responseCount = [self.detailedActivityData[self.day][@"responseCount"] intValue] + 1;
     self.detailedActivityData[self.day][@"responseCount"] = @(responseCount);
     NSDate *date;
-    for (NSDictionary *sleepQualityDetailData in sleepQualities) {
-        date = sleepQualityDetailData[@"date"];
-        int sleepQuality = [sleepQualityDetailData[@"quality"] intValue];
+    for (SleepQualityDetailData *sleepQualityDetailData in sleepQualities) {
+        date = sleepQualityDetailData.date;
+        int sleepQuality = sleepQualityDetailData.quality;
 
         NSLog(@"getDetailActivityDataSleepResponse: %d %d %@ %d", self.day, index, [self.gmt stringFromDate:date], sleepQuality);
 
@@ -685,11 +685,11 @@
             NSDictionary *detail = @{ @"date": [self.gmt stringFromDate:date],
                                       @"quality": @(sleepQuality) };
 
-            [self.totalActivityData[self.day][@"sleepQualityDetail"] addObject:detail];
+            [self.detailedActivityData[self.day][@"sleepQualityDetail"] addObject:detail];
         }
     }
 
-    if (date && responseCount == 96) {
+    if (responseCount == 96) {
         NSString *callbackId = self.callbackTable[@"getDetailActivityData"];
         if (callbackId) {
             self.detailedActivityData[self.day][@"date"] = [self.gmtYmd stringFromDate:date];
