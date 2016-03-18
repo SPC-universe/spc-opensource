@@ -6,17 +6,16 @@ Código opensource para la pulsera SPC Fitness
 
 Clone the plugin
 
-    $ git clone https://github.com/SPC-universe/spc-fitness-opensource.git
+    $ git clone https://github.com/SPC-universe/spc-opensource.git
 
 Create a new Cordova Project
 
-    $ cordova create hello com.example.helloapp Hello
-    
+    $ cordova create spcfit-cordova-example com.spc.spcfitexample SPCFitExample
+
 Install the plugin
 
-    $ cd hello
-    $ cordova plugin install ../cordova-plugin-spcfit
-    
+    $ cd spcfit-cordova-example
+    $ cordova plugin add ../spc-opensource/Cordova
 
 Edit `www/js/index.js` and add the following code inside `onDeviceReady`
 
@@ -32,14 +31,19 @@ Edit `www/js/index.js` and add the following code inside `onDeviceReady`
     SPCFit.test("World", success, failure);
 ```
 
+Or you can also use our example www.zip instead of the default www directory
+
+    $ unzip ../spc-opensource/Cordova/www.zip
+
 Install iOS or Android platform
 
     cordova platform add ios
-    cordova platform add android
-    
-Run the code
+    cordova build ios
+    Open the Xcode project inside your app (platforms/iOS/SPCFitExample.xcodeproj)
 
-    cordova run 
+    cordova platform add android
+    cordova build android
+    cordova run
 
 ## More Info
 
