@@ -704,6 +704,14 @@
 - (void)activityTrackerGetDetailActivityDataResponseWithoutData
 {
     NSLog(@"getDetailActivityDataResponseWithoutData");
+
+    NSString *callbackId = self.callbackTable[@"getDetailActivityData"];
+    if (callbackId) {
+        [self.detailedActivityData[self.day] removeObjectForKey:@"responseCount"];
+        NSDictionary *data = self.detailedActivityData[self.day];
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
+        [self.commandDelegate sendPluginResult:result callbackId:callbackId];
+    }
 }
 
 - (void)activityTrackerRealTimeModeResponseSteps:(int)steps
